@@ -37,47 +37,47 @@ const initialNodes = [
   { id: 'b5', type: 'group', position: { x: 4350, y: 350 }, style: { width: 1050, height: 400 }, data: { label: 'Block 5: Crystallization and Final Isolation' } },
 
   // Block 1 Nodes
-  { id: 'v101a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solvent Vessel', subtitle: 'Toluene', hoverDetails: '<b>Tag:</b> V-101A (FIC-101)<br/><b>Details:</b> 25 L Toluene<br/>FT-101 Coriolis Meter, FCV-101 Flow Valve', typeClass: 'node-input' } },
-  { id: 'v101b', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solid Hopper', subtitle: 'Pyrmetazole', hoverDetails: '<b>Tag:</b> V-101B<br/><b>Details:</b> 6.2 kg Pyrmetazole (18.8 mol)<br/>Rotary Airlock Valve', typeClass: 'node-input' } },
-  { id: 'amine_in', type: 'custom', position: { x: 450, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Base Supply', subtitle: 'Amine', hoverDetails: '<b>Details:</b> 0.72 kg DIPEA ((iPr)2NEt) added to stabilize Ti-complex and buffer pH', typeClass: 'node-input' } },
-  { id: 'det_in', type: 'custom', position: { x: 650, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Ligand Supply', subtitle: '(S,S)-DET', hoverDetails: '<b>Details:</b> 2.35 kg (11.4 mol) of (S,S)-Diethyl Tartrate<br/>XV-102 Dosing Valve', typeClass: 'node-input' } },
-  { id: 'w_src', type: 'custom', position: { x: 850, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Supply', subtitle: 'Ultra-Pure', hoverDetails: '<b>Details:</b> Exactly 44 mL Water (2.4 mol)<br/>Requires micro-capillary piping to avoid dead legs', typeClass: 'node-input' } },
-  { id: 'p101', type: 'custom', position: { x: 850, y: 150 }, parentId: 'b1', extent: 'parent', data: { title: 'Micro-Pump', subtitle: 'Dosing', hoverDetails: '<b>Tag:</b> P-101<br/><b>Details:</b> High-Precision Metering Pump for 44 mL Water', typeClass: 'node-unitOp' } },
-  { id: 'v101c', type: 'custom', position: { x: 1050, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Dosing Vessel', subtitle: 'Titanium Source', hoverDetails: '<b>Tag:</b> V-101C<br/><b>Details:</b> 1.60 kg Ti(OiPr)4 (5.6 mol)<br/>Injected via sub-surface dip-tube (XV-103)', typeClass: 'node-input' } },
+  { id: 'v101a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solvent Vessel', subtitle: 'Toluene', hoverDetails: '<b>Tag:</b> V-101A (FIC-101) <sup>[4]</sup><br/><b>Details:</b> 25 L Toluene <sup>[10]</sup><br/>FT-101 Coriolis Meter, FCV-101 Flow Valve', typeClass: 'node-input' } },
+  { id: 'v101b', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solid Hopper', subtitle: 'Pyrmetazole', hoverDetails: '<b>Tag:</b> V-101B <sup>[4]</sup><br/><b>Details:</b> 6.2 kg Pyrmetazole (18.8 mol) <sup>[1, 10]</sup><br/>Rotary Airlock Valve', typeClass: 'node-input' } },
+  { id: 'amine_in', type: 'custom', position: { x: 450, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Base Supply', subtitle: 'Amine', hoverDetails: '<b>Details:</b> 0.72 kg DIPEA ((iPr)2NEt) added to stabilize Ti-complex and buffer pH <sup>[1, 10]</sup>', typeClass: 'node-input' } },
+  { id: 'det_in', type: 'custom', position: { x: 650, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Ligand Supply', subtitle: '(S,S)-DET', hoverDetails: '<b>Details:</b> 2.35 kg (11.4 mol) of (S,S)-Diethyl Tartrate <sup>[1]</sup><br/>XV-102 Dosing Valve', typeClass: 'node-input' } },
+  { id: 'w_src', type: 'custom', position: { x: 850, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Supply', subtitle: 'Ultra-Pure', hoverDetails: '<b>Details:</b> Exactly 44 mL Water (2.4 mol) <sup>[1, 10]</sup><br/>Requires micro-capillary piping to avoid dead legs', typeClass: 'node-input' } },
+  { id: 'p101', type: 'custom', position: { x: 850, y: 150 }, parentId: 'b1', extent: 'parent', data: { title: 'Micro-Pump', subtitle: 'Dosing', hoverDetails: '<b>Tag:</b> P-101<br/><b>Details:</b> High-Precision Metering Pump for 44 mL Water <sup>[4, 7]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'v101c', type: 'custom', position: { x: 1050, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Dosing Vessel', subtitle: 'Titanium Source', hoverDetails: '<b>Tag:</b> V-101C<br/><b>Details:</b> 1.60 kg Ti(OiPr)4 (5.6 mol) <sup>[1, 10]</sup><br/>Injected via sub-surface dip-tube (XV-103) <sup>[5]</sup>', typeClass: 'node-input' } },
 
-  { id: 'n2_in', type: 'custom', position: { x: 50, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Inert Gas', subtitle: 'Nitrogen', hoverDetails: '<b>Loop:</b> PIC-101<br/><b>Details:</b> N2 Purge (PT-101 / XV-101) to 1.1 bar', typeClass: 'node-input' } },
-  { id: 'util_in', type: 'custom', position: { x: 50, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Utilities', subtitle: 'Heating/Cooling', hoverDetails: '<b>Loop:</b> TIC-101<br/><b>Details:</b> Hot Water/Steam (TCV-101)<br/>Chilled Water (TCV-102)', typeClass: 'node-input' } },
+  { id: 'n2_in', type: 'custom', position: { x: 50, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Inert Gas', subtitle: 'Nitrogen', hoverDetails: '<b>Loop:</b> PIC-101 <sup>[7]</sup><br/><b>Details:</b> N2 Purge (PT-101 / XV-101) to 1.1 bar', typeClass: 'node-input' } },
+  { id: 'util_in', type: 'custom', position: { x: 50, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Utilities', subtitle: 'Heating/Cooling', hoverDetails: '<b>Loop:</b> TIC-101 <sup>[7]</sup><br/><b>Details:</b> Hot Water/Steam (TCV-101)<br/>Chilled Water (TCV-102)', typeClass: 'node-input' } },
 
-  { id: 'e101', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b1', extent: 'parent', data: { title: 'Condenser', subtitle: 'Reflux', hoverDetails: '<b>Tag:</b> E-101<br/><b>Details:</b> Vertical Shell & Tube', typeClass: 'node-unitOp' } },
-  { id: 'ds_trap', type: 'custom', position: { x: 350, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Separator', subtitle: 'Azeotropic', hoverDetails: '<b>Details:</b> Dean-Stark Trap to azeotropically distill and remove residual water from Pyrmetazole/Toluene mixture', typeClass: 'node-unitOp' } },
+  { id: 'e101', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b1', extent: 'parent', data: { title: 'Condenser', subtitle: 'Reflux', hoverDetails: '<b>Tag:</b> E-101<br/><b>Details:</b> Vertical Shell & Tube <sup>[6]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'ds_trap', type: 'custom', position: { x: 350, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Separator', subtitle: 'Azeotropic', hoverDetails: '<b>Details:</b> Dean-Stark Trap to azeotropically distill and remove residual water <sup>[1, 8]</sup>', typeClass: 'node-unitOp' } },
   { id: 'waste_water', type: 'custom', position: { x: 150, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Waste', subtitle: 'Azeotrope H2O', hoverDetails: '<b>Details:</b> Uncontrolled residual water removed prior to exact dosing', typeClass: 'node-waste' } },
 
-  { id: 'r101', type: 'custom', position: { x: 550, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Complexation STR', subtitle: 'Reactor', hoverDetails: '<b>Tag:</b> R-101<br/><b>Details:</b> Glass-Lined (GLR), VFD Agitator (M-101)<br/>Temp: 54°C (TIC-101), Time: 50 min<br/>Safety: Rupture Disc (PSE-101)', typeClass: 'node-unitOp' } },
-  { id: 'qc_port', type: 'custom', position: { x: 800, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'QC Sampling', subtitle: 'Karl Fischer', hoverDetails: '<b>Details:</b> Confirm moisture content &lt; 0.05% before Titanium addition', typeClass: 'node-unitOp' } },
-  { id: 'vent', type: 'custom', position: { x: 1050, y: 300 }, parentId: 'b1', extent: 'parent', data: { title: 'Vent System', subtitle: 'Pressure Relief', hoverDetails: '<b>Details:</b> Safe Vent / Knock-Out Drum<br/>PCV-101 / PRV-101', typeClass: 'node-waste' } },
+  { id: 'r101', type: 'custom', position: { x: 550, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Complexation STR', subtitle: 'Reactor', hoverDetails: '<b>Tag:</b> R-101 <sup>[4]</sup><br/><b>Details:</b> Glass-Lined (GLR), VFD Agitator (M-101) <sup>[5]</sup><br/>Temp: 54°C (TIC-101), Time: 50 min <sup>[1]</sup><br/>Safety: Rupture Disc (PSE-101) <sup>[8]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'qc_port', type: 'custom', position: { x: 800, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'QC Sampling', subtitle: 'Karl Fischer', hoverDetails: '<b>Details:</b> Confirm moisture content &lt; 0.05% before Titanium addition <sup>[2]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'vent', type: 'custom', position: { x: 1050, y: 300 }, parentId: 'b1', extent: 'parent', data: { title: 'Vent System', subtitle: 'Pressure Relief', hoverDetails: '<b>Details:</b> Safe Vent / Knock-Out Drum <sup>[8]</sup><br/>PCV-101 / PRV-101', typeClass: 'node-waste' } },
 
-  { id: 'cool_phase', type: 'custom', position: { x: 550, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Cooling Phase', subtitle: 'Equilibration', hoverDetails: '<b>Details:</b> Cool complex to 25°C via TCV-102 prior to transfer', typeClass: 'node-unitOp' } },
+  { id: 'cool_phase', type: 'custom', position: { x: 550, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Cooling Phase', subtitle: 'Equilibration', hoverDetails: '<b>Details:</b> Cool complex to 25°C via TCV-102 prior to transfer <sup>[1, 10]</sup>', typeClass: 'node-unitOp' } },
 
-  { id: 'b1_out', type: 'custom', position: { x: 550, y: 700 }, parentId: 'b1', extent: 'parent', data: { title: 'Active Ti-Complex', subtitle: 'Intermediate', hoverDetails: '<b>Details:</b> Stereoselective dinuclear titanium-pyrmetazole complex dissolved in 25 L Toluene at 25°C', typeClass: 'node-product' } },
+  { id: 'b1_out', type: 'custom', position: { x: 550, y: 700 }, parentId: 'b1', extent: 'parent', data: { title: 'Active Ti-Complex', subtitle: 'Intermediate', hoverDetails: '<b>Details:</b> Stereoselective dinuclear titanium-pyrmetazole complex dissolved in 25 L Toluene <sup>[1]</sup>', typeClass: 'node-product' } },
 
   // Block 2 Nodes
-  { id: 'v102a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidant Vessel', subtitle: 'CHP', hoverDetails: '<b>Tag:</b> V-102A<br/><b>Details:</b> 3.30 kg Cumene Hydroperoxide (CHP)<br/>Thermally sensitive oxidant', typeClass: 'node-input' } },
-  { id: 'p102', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Dosing Pump', subtitle: 'Controlled Flow', hoverDetails: '<b>Tag:</b> P-102<br/><b>Details:</b> High-precision slow addition over 1 hour to control exotherm', typeClass: 'node-unitOp' } },
-  { id: 'util_cool', type: 'custom', position: { x: 50, y: 250 }, parentId: 'b2', extent: 'parent', data: { title: 'Chilled Water', subtitle: 'Max Cooling', hoverDetails: '<b>Loop:</b> TIC-102<br/><b>Details:</b> Required to absorb large exothermic heat of reaction (ΔH = -250 to -350 kJ/mol)', typeClass: 'node-input' } },
-  { id: 'r102', type: 'custom', position: { x: 250, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidation STR', subtitle: 'Reaction Phase', hoverDetails: '<b>Tag:</b> R-102 (or Phase 2 of R-101)<br/><b>Details:</b> Temp: 30°C (strictly controlled)<br/>Time: 1 hour<br/>Safety: High temperature alarm to prevent sulfone formation', typeClass: 'node-unitOp' } },
-  { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Extract', subtitle: 'Crude Esomeprazole', hoverDetails: '<b>Details:</b> Enantiomeric Excess (ee) >94%<br/>Contains unreacted pyrmetazole, Ti-complex, and Toluene', typeClass: 'node-product' } },
+  { id: 'v102a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidant Vessel', subtitle: 'CHP', hoverDetails: '<b>Tag:</b> V-102A <sup>[4]</sup><br/><b>Details:</b> 3.30 kg Cumene Hydroperoxide (CHP) <sup>[1, 10]</sup><br/>Thermally sensitive oxidant <sup>[8]</sup>', typeClass: 'node-input' } },
+  { id: 'p102', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Dosing Pump', subtitle: 'Controlled Flow', hoverDetails: '<b>Tag:</b> P-102<br/><b>Details:</b> High-precision slow addition over 1 hour to control exotherm <sup>[5]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'util_cool', type: 'custom', position: { x: 50, y: 250 }, parentId: 'b2', extent: 'parent', data: { title: 'Chilled Water', subtitle: 'Max Cooling', hoverDetails: '<b>Loop:</b> TIC-102 <sup>[7]</sup><br/><b>Details:</b> Required to absorb large exothermic heat of reaction (ΔH = -250 to -350 kJ/mol) <sup>[2]</sup>', typeClass: 'node-input' } },
+  { id: 'r102', type: 'custom', position: { x: 250, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidation STR', subtitle: 'Reaction Phase', hoverDetails: '<b>Tag:</b> R-102 (or Phase 2 of R-101) <sup>[4]</sup><br/><b>Details:</b> Temp: 30°C (strictly controlled) <sup>[1]</sup><br/>Time: 1 hour<br/>Safety: High temperature alarm to prevent sulfone formation <sup>[8]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Extract', subtitle: 'Crude Esomeprazole', hoverDetails: '<b>Details:</b> Enantiomeric Excess (ee) >94% <sup>[1, 10]</sup><br/>Contains unreacted pyrmetazole, Ti-complex, and Toluene', typeClass: 'node-product' } },
 
   // Block 3 Nodes
-  { id: 'v104a', type: 'custom', position: { x: 30, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous NH3', subtitle: '12.5%', hoverDetails: '<b>Tag:</b> V-104A<br/><b>Details:</b> 60 L Aqueous Ammonium Hydroxide (12.5% NH3)', typeClass: 'node-input' } },
-  { id: 'w_tol', type: 'custom', position: { x: 530, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Waste Toluene', subtitle: 'SRU', hoverDetails: '<b>Details:</b> Spent Toluene with degraded Ti-catalyst<br/>Routed to Solvent Recovery Unit (SRU)', typeClass: 'node-waste' } },
-  { id: 'ex101', type: 'custom', position: { x: 270, y: 350 }, parentId: 'b3', extent: 'parent', data: { title: 'Primary Extractor', subtitle: 'Mixer-Settler', hoverDetails: '<b>Tag:</b> EX-101<br/><b>Details:</b> Jacketed Stirred Tank (GLR/SS316L)<br/>Phase Boundary Control (LIC-101 / LT-101)<br/>Bottom drain valve XV-105', typeClass: 'node-unitOp' } },
+  { id: 'v104a', type: 'custom', position: { x: 30, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous NH3', subtitle: '12.5%', hoverDetails: '<b>Tag:</b> V-104A<br/><b>Details:</b> 60 L Aqueous Ammonium Hydroxide (12.5% NH3) <sup>[3]</sup>', typeClass: 'node-input' } },
+  { id: 'w_tol', type: 'custom', position: { x: 530, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Waste Toluene', subtitle: 'SRU', hoverDetails: '<b>Details:</b> Spent Toluene with degraded Ti-catalyst <sup>[8]</sup><br/>Routed to Solvent Recovery Unit (SRU)', typeClass: 'node-waste' } },
+  { id: 'ex101', type: 'custom', position: { x: 270, y: 350 }, parentId: 'b3', extent: 'parent', data: { title: 'Primary Extractor', subtitle: 'Mixer-Settler', hoverDetails: '<b>Tag:</b> EX-101 <sup>[6]</sup><br/><b>Details:</b> Jacketed Stirred Tank (GLR/SS316L)<br/>Phase Boundary Control (LIC-101 / LT-101) <sup>[7]</sup><br/>Bottom drain valve XV-105', typeClass: 'node-unitOp' } },
   
-  { id: 'v104c', type: 'custom', position: { x: 30, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetic Acid', subtitle: 'pH Adjust', hoverDetails: '<b>Tag:</b> V-104C<br/><b>Details:</b> Concentrated Acetic Acid for re-protonation', typeClass: 'node-input' } },
-  { id: 'v103', type: 'custom', position: { x: 270, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Secondary Extractor', subtitle: 'pH Adjustment Vessel', hoverDetails: '<b>Tag:</b> V-103<br/><b>Details:</b> Hastelloy C-276 STR<br/>pH Modulation Loop (AIC-101 / AT-101) to pH 7.5-8.5', typeClass: 'node-unitOp' } },
+  { id: 'v104c', type: 'custom', position: { x: 30, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetic Acid', subtitle: 'pH Adjust', hoverDetails: '<b>Tag:</b> V-104C<br/><b>Details:</b> Concentrated Acetic Acid for re-protonation <sup>[3]</sup>', typeClass: 'node-input' } },
+  { id: 'v103', type: 'custom', position: { x: 270, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Secondary Extractor', subtitle: 'pH Adjustment Vessel', hoverDetails: '<b>Tag:</b> V-103 <sup>[4]</sup><br/><b>Details:</b> Hastelloy C-276 STR<br/>pH Modulation Loop (AIC-101 / AT-101) to pH 7.5-8.5 <sup>[7]</sup>', typeClass: 'node-unitOp' } },
   
-  { id: 'v104b', type: 'custom', position: { x: 30, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'MIBK Solvent', subtitle: 'Extraction', hoverDetails: '<b>Tag:</b> V-104B<br/><b>Details:</b> 18 L total Methyl Isobutyl Ketone (MIBK)', typeClass: 'node-input' } },
-  { id: 'w_aq', type: 'custom', position: { x: 530, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Waste', subtitle: 'ETP', hoverDetails: '<b>Details:</b> Spent aqueous ammonium acetate<br/>Routed to Effluent Treatment Plant (ETP)', typeClass: 'node-waste' } },
-  { id: 'b3_out', type: 'custom', position: { x: 530, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Purified Free Base', subtitle: 'In MIBK', hoverDetails: '<b>Details:</b> Highly purified esomeprazole free base dissolved in 9 L MIBK', typeClass: 'node-product' } },
+  { id: 'v104b', type: 'custom', position: { x: 30, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'MIBK Solvent', subtitle: 'Extraction', hoverDetails: '<b>Tag:</b> V-104B<br/><b>Details:</b> 18 L total Methyl Isobutyl Ketone (MIBK) <sup>[3]</sup>', typeClass: 'node-input' } },
+  { id: 'w_aq', type: 'custom', position: { x: 530, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Waste', subtitle: 'ETP', hoverDetails: '<b>Details:</b> Spent aqueous ammonium acetate <sup>[8]</sup><br/>Routed to Effluent Treatment Plant (ETP)', typeClass: 'node-waste' } },
+  { id: 'b3_out', type: 'custom', position: { x: 530, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Purified Free Base', subtitle: 'In MIBK', hoverDetails: '<b>Details:</b> Highly purified esomeprazole free base dissolved in 9 L MIBK <sup>[3, 10]</sup>', typeClass: 'node-product' } },
 
   // Block 4 Nodes
   { id: 'i10', type: 'custom', position: { x: 30, y: 200 }, parentId: 'b4', extent: 'parent', data: { title: 'Alkaline Source', subtitle: 'KOH/Methoxide', typeClass: 'node-input' } },
@@ -173,24 +173,25 @@ export default function App() {
           <div className="ref-dropdown">
             <strong>Primary Literature</strong>
             <ul>
-              <li>Cotton, H., et al. (2000). "Asymmetric synthesis of esomeprazole." <i>Tetrahedron: Asymmetry</i>, 11(18), 3819-3825.</li>
-              <li>Song, et al. (2014) & Li, et al. (2014). Reaction scale-up and optimization parameters.</li>
+              <li>[1] Cotton, H., et al. (2000). "Asymmetric synthesis of esomeprazole." <i>Tetrahedron: Asymmetry</i>, 11(18), 3819-3825.</li>
+              <li>[2] Song, et al. (2014) & Li, et al. (2014). Reaction scale-up and optimization parameters.</li>
             </ul>
             <strong>Patents</strong>
             <ul>
-              <li>US Patent 6,174,548 & US Patent 6,369,085 (AstraZeneca). Salt formation & crystallization.</li>
+              <li>[3] US Patent 6,174,548 & US Patent 6,369,085 (AstraZeneca). Salt formation, extraction, & crystallization.</li>
             </ul>
             <strong>Engineering Design & Handbooks</strong>
             <ul>
-              <li>Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i>.</li>
-              <li>Peters, M., & Timmerhaus, K. <i>Plant Design and Economics for Chemical Engineers</i>.</li>
-              <li>Levin, M. (Ed.). <i>Pharmaceutical Process Scale-Up</i>.</li>
-              <li><i>Active Pharmaceutical Ingredients: Development, Manufacturing, and Regulation</i>.</li>
+              <li>[4] Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i>.</li>
+              <li>[5] Levin, M. (Ed.). <i>Pharmaceutical Process Scale-Up</i>.</li>
+              <li>[6] Green, D. W. <i>Perry's Chemical Engineers' Handbook</i>.</li>
+              <li>[7] Lipták, B. G. <i>Instrument Engineers' Handbook</i>.</li>
+              <li>[8] <i>Active Pharmaceutical Ingredients: Development, Manufacturing, and Regulation</i>.</li>
             </ul>
             <strong>Internal Documentation</strong>
             <ul>
-              <li><i>Process Selection & Justification</i></li>
-              <li><i>Equipment Mass/Energy Balances & Design Specifications</i></li>
+              <li>[9] <i>Process Selection & Justification</i></li>
+              <li>[10] <i>Equipment Mass/Energy Balances & Design Specifications</i></li>
             </ul>
           </div>
         )}
