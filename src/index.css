@@ -164,3 +164,37 @@ header p {
   border-color: #333333 transparent transparent transparent;
 }
 
+.sources-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 16px;
+  border: 2px solid #000000;
+  border-radius: 0;
+  max-width: 350px;
+  font-size: 11px;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+.sources-panel strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sources-panel ul {
+  margin: 0;
+  padding-left: 16px;
+  color: #333;
+}
+
+.sources-panel li {
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+

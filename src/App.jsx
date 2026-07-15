@@ -163,6 +163,13 @@ export default function App() {
         <h1>Esomeprazole API Synthesis</h1>
         <p>Process Flow Diagram (PFD)</p>
       </header>
+      <div className="sources-panel">
+        <strong>Process References</strong>
+        <ul>
+          <li>Cotton, H., et al. (2000). "Asymmetric synthesis of esomeprazole." <i>Tetrahedron: Asymmetry</i>, 11(18), 3819-3825.</li>
+          <li>Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i> (5th ed.). Prentice Hall.</li>
+        </ul>
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
