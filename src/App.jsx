@@ -68,17 +68,16 @@ const initialNodes = [
   { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Extract', subtitle: 'Crude Esomeprazole', hoverDetails: '<b>Details:</b> Enantiomeric Excess (ee) >94%<br/>Contains unreacted pyrmetazole, Ti-complex, and Toluene', typeClass: 'node-product' } },
 
   // Block 3 Nodes
-  { id: 'i7', type: 'custom', position: { x: 30, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Aq. NH4OH', subtitle: 'Aqueous Ammonium Hydroxide', typeClass: 'node-input' } },
-  { id: 'w1', type: 'custom', position: { x: 530, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Waste', subtitle: 'Spent Catalyst & Unreacted Organics', typeClass: 'node-waste' } },
-  { id: 'ex1', type: 'custom', position: { x: 270, y: 350 }, parentId: 'b3', extent: 'parent', data: { title: 'Primary Extractor', subtitle: '', typeClass: 'node-unitOp' } },
+  { id: 'v104a', type: 'custom', position: { x: 30, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous NH3', subtitle: '12.5%', hoverDetails: '<b>Tag:</b> V-104A<br/><b>Details:</b> 60 L Aqueous Ammonium Hydroxide (12.5% NH3)', typeClass: 'node-input' } },
+  { id: 'w_tol', type: 'custom', position: { x: 530, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Waste Toluene', subtitle: 'SRU', hoverDetails: '<b>Details:</b> Spent Toluene with degraded Ti-catalyst<br/>Routed to Solvent Recovery Unit (SRU)', typeClass: 'node-waste' } },
+  { id: 'ex101', type: 'custom', position: { x: 270, y: 350 }, parentId: 'b3', extent: 'parent', data: { title: 'Primary Extractor', subtitle: 'Mixer-Settler', hoverDetails: '<b>Tag:</b> EX-101<br/><b>Details:</b> Jacketed Stirred Tank (GLR/SS316L)<br/>Phase Boundary Control (LIC-101 / LT-101)<br/>Bottom drain valve XV-105', typeClass: 'node-unitOp' } },
   
-  { id: 'i8', type: 'custom', position: { x: 30, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetic Acid', subtitle: '', typeClass: 'node-input' } },
-  { id: 'ph1', type: 'custom', position: { x: 270, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'pH Adjustment Vessel', subtitle: 'Aqueous Product Phase', typeClass: 'node-unitOp' } },
+  { id: 'v104c', type: 'custom', position: { x: 30, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetic Acid', subtitle: 'pH Adjust', hoverDetails: '<b>Tag:</b> V-104C<br/><b>Details:</b> Concentrated Acetic Acid for re-protonation', typeClass: 'node-input' } },
+  { id: 'v103', type: 'custom', position: { x: 270, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Secondary Extractor', subtitle: 'pH Adjustment Vessel', hoverDetails: '<b>Tag:</b> V-103<br/><b>Details:</b> Hastelloy C-276 STR<br/>pH Modulation Loop (AIC-101 / AT-101) to pH 7.5-8.5', typeClass: 'node-unitOp' } },
   
-  { id: 'i9', type: 'custom', position: { x: 30, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'MIBK Solvent', subtitle: '', typeClass: 'node-input' } },
-  { id: 'ex2', type: 'custom', position: { x: 270, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Secondary Extractor', subtitle: '', typeClass: 'node-unitOp' } },
-  { id: 'w2', type: 'custom', position: { x: 530, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Waste', subtitle: 'Aqueous Effluent', typeClass: 'node-waste' } },
-  { id: 'b3_out', type: 'custom', position: { x: 530, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Purified Free Base', subtitle: 'In MIBK', typeClass: 'node-product' } },
+  { id: 'v104b', type: 'custom', position: { x: 30, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'MIBK Solvent', subtitle: 'Extraction', hoverDetails: '<b>Tag:</b> V-104B<br/><b>Details:</b> 18 L total Methyl Isobutyl Ketone (MIBK)', typeClass: 'node-input' } },
+  { id: 'w_aq', type: 'custom', position: { x: 530, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Waste', subtitle: 'ETP', hoverDetails: '<b>Details:</b> Spent aqueous ammonium acetate<br/>Routed to Effluent Treatment Plant (ETP)', typeClass: 'node-waste' } },
+  { id: 'b3_out', type: 'custom', position: { x: 530, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Purified Free Base', subtitle: 'In MIBK', hoverDetails: '<b>Details:</b> Highly purified esomeprazole free base dissolved in 9 L MIBK', typeClass: 'node-product' } },
 
   // Block 4 Nodes
   { id: 'i10', type: 'custom', position: { x: 30, y: 200 }, parentId: 'b4', extent: 'parent', data: { title: 'Alkaline Source', subtitle: 'KOH/Methoxide', typeClass: 'node-input' } },
@@ -126,17 +125,16 @@ const initialEdges = [
   { id: 'e-r102-b2', source: 'r102', target: 'b2_out', type: 'step' },
 
   // B3
-  { id: 'e-b2-ex1', source: 'b2_out', target: 'ex1', type: 'step' },
-  { id: 'e-i7-ex1', source: 'i7', target: 'ex1', type: 'step' },
-  { id: 'e-ex1-w1', source: 'ex1', target: 'w1', type: 'step', className: 'waste-edge', label: 'Organic Waste Phase' },
+  { id: 'e-b2-ex101', source: 'b2_out', target: 'ex101', type: 'step' },
+  { id: 'e-v104a-ex101', source: 'v104a', target: 'ex101', type: 'step' },
+  { id: 'e-ex101-w_tol', source: 'ex101', target: 'w_tol', type: 'step', className: 'waste-edge', label: 'Organic Waste Phase' },
   
-  { id: 'e-ex1-ph1', source: 'ex1', target: 'ph1', type: 'step' },
-  { id: 'e-i8-ph1', source: 'i8', target: 'ph1', type: 'step' },
+  { id: 'e-ex101-v103', source: 'ex101', target: 'v103', type: 'step', label: 'Aqueous Phase (LIC-101)' },
+  { id: 'e-v104c-v103', source: 'v104c', target: 'v103', type: 'step', label: 'AIC-101' },
+  { id: 'e-v104b-v103', source: 'v104b', target: 'v103', type: 'step' },
   
-  { id: 'e-ph1-ex2', source: 'ph1', target: 'ex2', type: 'step' },
-  { id: 'e-i9-ex2', source: 'i9', target: 'ex2', type: 'step' },
-  { id: 'e-ex2-w2', source: 'ex2', target: 'w2', type: 'step', className: 'waste-edge', label: 'Aqueous Waste Phase' },
-  { id: 'e-ex2-b3', source: 'ex2', target: 'b3_out', type: 'step' },
+  { id: 'e-v103-w_aq', source: 'v103', target: 'w_aq', type: 'step', className: 'waste-edge', label: 'Aqueous Waste Phase' },
+  { id: 'e-v103-b3', source: 'v103', target: 'b3_out', type: 'step', label: 'MIBK Extract' },
 
   // B4
   { id: 'e-b3-sf1', source: 'b3_out', target: 'sf1', type: 'step' },
