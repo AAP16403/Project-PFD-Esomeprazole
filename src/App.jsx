@@ -80,11 +80,16 @@ const initialNodes = [
   { id: 'b3_out', type: 'custom', position: { x: 530, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Purified Free Base', subtitle: 'In MIBK', hoverDetails: '<b>Details:</b> Highly purified esomeprazole free base dissolved in 9 L MIBK <sup>[3, 10]</sup>', typeClass: 'node-product' } },
 
   // Block 4 Nodes
-  { id: 'i10', type: 'custom', position: { x: 30, y: 200 }, parentId: 'b4', extent: 'parent', data: { title: 'Alkaline Source', subtitle: 'KOH/Methoxide', typeClass: 'node-input' } },
-  { id: 'sf1', type: 'custom', position: { x: 270, y: 200 }, parentId: 'b4', extent: 'parent', data: { title: 'Reactor 3', subtitle: 'Intermediate Salt Formation', typeClass: 'node-unitOp' } },
-  { id: 'i11', type: 'custom', position: { x: 270, y: 320 }, parentId: 'b4', extent: 'parent', data: { title: 'MgSO4', subtitle: 'Magnesium Sulfate', typeClass: 'node-input' } },
-  { id: 'sf2', type: 'custom', position: { x: 530, y: 200 }, parentId: 'b4', extent: 'parent', data: { title: 'Reactor 4', subtitle: 'Magnesium Exchange', typeClass: 'node-unitOp' } },
-  { id: 'b4_out', type: 'custom', position: { x: 790, y: 200 }, parentId: 'b4', extent: 'parent', data: { title: 'Salt Solution', subtitle: 'Esomeprazole Mg', typeClass: 'node-product' } },
+  { id: 'v105a', type: 'custom', position: { x: 30, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Potassium Source', subtitle: 'KOMe', hoverDetails: '<b>Tag:</b> V-105A <sup>[4]</sup><br/><b>Details:</b> Methanolic Potassium Source (KOMe) <sup>[3]</sup>', typeClass: 'node-input' } },
+  { id: 'r104a', type: 'custom', position: { x: 270, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Salt Reactor Phase 1', subtitle: 'Potassium Intermediate', hoverDetails: '<b>Tag:</b> R-104 (Pathway B) <sup>[4]</sup><br/><b>Details:</b> GLR STR, Temp: 35°C (TIC-104) <sup>[3, 7]</sup><br/>12-14 hr aging to crystallize intermediate', typeClass: 'node-unitOp' } },
+  { id: 'f102', type: 'custom', position: { x: 530, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Nutsche Filter', subtitle: 'Intermediate Isolation', hoverDetails: '<b>Tag:</b> F-102 <sup>[5]</sup><br/><b>Details:</b> Agitated Nutsche Filter (ANF) to isolate pure Potassium Salt intermediate', typeClass: 'node-unitOp' } },
+  { id: 'w_ml', type: 'custom', position: { x: 790, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Mother Liquor Waste', subtitle: 'ETP', hoverDetails: '<b>Details:</b> Mother liquor containing impurities from free base<br/>Routed to ETP', typeClass: 'node-waste' } },
+
+  { id: 'v105c', type: 'custom', position: { x: 270, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'MgSO4 Dosing', subtitle: 'Hopper', hoverDetails: '<b>Tag:</b> V-105C <sup>[4]</sup><br/><b>Details:</b> Gravimetric Dosing Loop (WIC-104) over 3 hrs <sup>[3, 7]</sup>', typeClass: 'node-input' } },
+  { id: 'r104b', type: 'custom', position: { x: 530, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'Salt Reactor Phase 2', subtitle: 'Magnesium Exchange', hoverDetails: '<b>Tag:</b> R-104 (Ion Exchange Phase) <sup>[4]</sup><br/><b>Details:</b> Vacuum-Rated GLR STR <sup>[5]</sup><br/>Vacuum Control Loop (PIC-104) <sup>[6]</sup>', typeClass: 'node-unitOp' } },
+  
+  { id: 'w_k2so4', type: 'custom', position: { x: 790, y: 450 }, parentId: 'b4', extent: 'parent', data: { title: 'Aqueous Waste', subtitle: 'K2SO4 Byproduct', hoverDetails: '<b>Details:</b> Dissolved Potassium Sulfate (K2SO4) byproduct<br/>Routed to ETP', typeClass: 'node-waste' } },
+  { id: 'b4_out', type: 'custom', position: { x: 790, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'API Slurry', subtitle: 'Esomeprazole Mg', hoverDetails: '<b>Details:</b> High-density slurry containing solid Esomeprazole Magnesium suspended in solvent <sup>[3]</sup>', typeClass: 'node-product' } },
 
   // Block 5 Nodes
   { id: 'i12', type: 'custom', position: { x: 30, y: 200 }, parentId: 'b5', extent: 'parent', data: { title: 'Anti-Solvent', subtitle: 'Acetone / Methanol', typeClass: 'node-input' } },
@@ -137,11 +142,17 @@ const initialEdges = [
   { id: 'e-v103-b3', source: 'v103', target: 'b3_out', type: 'step', label: 'MIBK Extract' },
 
   // B4
-  { id: 'e-b3-sf1', source: 'b3_out', target: 'sf1', type: 'step' },
-  { id: 'e-i10-sf1', source: 'i10', target: 'sf1', type: 'step' },
-  { id: 'e-sf1-sf2', source: 'sf1', target: 'sf2', type: 'step', label: 'Potassium Salt' },
-  { id: 'e-i11-sf2', source: 'i11', target: 'sf2', type: 'step' },
-  { id: 'e-sf2-b4', source: 'sf2', target: 'b4_out', type: 'step' },
+  { id: 'e-b3-r104a', source: 'b3_out', target: 'r104a', type: 'step' },
+  { id: 'e-v105a-r104a', source: 'v105a', target: 'r104a', type: 'step', label: 'TIC-104' },
+  
+  { id: 'e-r104a-f102', source: 'r104a', target: 'f102', type: 'step', label: '14 Hr Aging' },
+  { id: 'e-f102-w_ml', source: 'f102', target: 'w_ml', type: 'step', className: 'waste-edge' },
+  
+  { id: 'e-f102-r104b', source: 'f102', target: 'r104b', type: 'step', label: 'Pure K-Salt Cake' },
+  { id: 'e-v105c-r104b', source: 'v105c', target: 'r104b', type: 'step', label: 'WIC-104 (3 Hr)' },
+  
+  { id: 'e-r104b-w_k2so4', source: 'r104b', target: 'w_k2so4', type: 'step', className: 'waste-edge', label: 'Elutriation' },
+  { id: 'e-r104b-b4', source: 'r104b', target: 'b4_out', type: 'step', label: 'PIC-104 Vacuum' },
 
   // B5
   { id: 'e-b4-cr1', source: 'b4_out', target: 'cr1', type: 'step' },
