@@ -180,11 +180,17 @@ export default function App() {
             <ul>
               <li>US Patent 6,174,548 & US Patent 6,369,085 (AstraZeneca). Salt formation & crystallization.</li>
             </ul>
-            <strong>Engineering Design</strong>
+            <strong>Engineering Design & Handbooks</strong>
             <ul>
-              <li>Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i> (5th ed.).</li>
+              <li>Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i>.</li>
               <li>Peters, M., & Timmerhaus, K. <i>Plant Design and Economics for Chemical Engineers</i>.</li>
               <li>Levin, M. (Ed.). <i>Pharmaceutical Process Scale-Up</i>.</li>
+              <li><i>Active Pharmaceutical Ingredients: Development, Manufacturing, and Regulation</i>.</li>
+            </ul>
+            <strong>Internal Documentation</strong>
+            <ul>
+              <li><i>Process Selection & Justification</i></li>
+              <li><i>Equipment Mass/Energy Balances & Design Specifications</i></li>
             </ul>
           </div>
         )}
