@@ -61,10 +61,11 @@ const initialNodes = [
   { id: 'b1_out', type: 'custom', position: { x: 550, y: 700 }, parentId: 'b1', extent: 'parent', data: { title: 'Active Ti-Complex', subtitle: 'Intermediate', hoverDetails: '<b>Details:</b> Stereoselective dinuclear titanium-pyrmetazole complex dissolved in 25 L Toluene at 25°C', typeClass: 'node-product' } },
 
   // Block 2 Nodes
-  { id: 'i5', type: 'custom', position: { x: 30, y: 100 }, parentId: 'b2', extent: 'parent', data: { title: 'DIPEA', subtitle: 'Amine Base', typeClass: 'node-input' } },
-  { id: 'i6', type: 'custom', position: { x: 30, y: 300 }, parentId: 'b2', extent: 'parent', data: { title: 'CHP', subtitle: 'Cumene Hydroperoxide', typeClass: 'node-input' } },
-  { id: 'r2', type: 'custom', position: { x: 270, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Reactor 2: Oxidation', subtitle: 'Temp: 25°C - 30°C<br/>Time: 1 - 3 hours', typeClass: 'node-unitOp' } },
-  { id: 'b2_out', type: 'custom', position: { x: 530, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Extract', subtitle: 'Crude Esomeprazole<br/>>94% ee', typeClass: 'node-product' } },
+  { id: 'v102a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidant Vessel', subtitle: 'CHP', hoverDetails: '<b>Tag:</b> V-102A<br/><b>Details:</b> 3.30 kg Cumene Hydroperoxide (CHP)<br/>Thermally sensitive oxidant', typeClass: 'node-input' } },
+  { id: 'p102', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Dosing Pump', subtitle: 'Controlled Flow', hoverDetails: '<b>Tag:</b> P-102<br/><b>Details:</b> High-precision slow addition over 1 hour to control exotherm', typeClass: 'node-unitOp' } },
+  { id: 'util_cool', type: 'custom', position: { x: 50, y: 250 }, parentId: 'b2', extent: 'parent', data: { title: 'Chilled Water', subtitle: 'Max Cooling', hoverDetails: '<b>Loop:</b> TIC-102<br/><b>Details:</b> Required to absorb large exothermic heat of reaction (ΔH = -250 to -350 kJ/mol)', typeClass: 'node-input' } },
+  { id: 'r102', type: 'custom', position: { x: 250, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidation STR', subtitle: 'Reaction Phase', hoverDetails: '<b>Tag:</b> R-102 (or Phase 2 of R-101)<br/><b>Details:</b> Temp: 30°C (strictly controlled)<br/>Time: 1 hour<br/>Safety: High temperature alarm to prevent sulfone formation', typeClass: 'node-unitOp' } },
+  { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Extract', subtitle: 'Crude Esomeprazole', hoverDetails: '<b>Details:</b> Enantiomeric Excess (ee) >94%<br/>Contains unreacted pyrmetazole, Ti-complex, and Toluene', typeClass: 'node-product' } },
 
   // Block 3 Nodes
   { id: 'i7', type: 'custom', position: { x: 30, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Aq. NH4OH', subtitle: 'Aqueous Ammonium Hydroxide', typeClass: 'node-input' } },
@@ -118,10 +119,11 @@ const initialEdges = [
   { id: 'e-cool-b1', source: 'cool_phase', target: 'b1_out', type: 'step', label: 'Transfer' },
 
   // B2
-  { id: 'e-b1-r2', source: 'b1_out', target: 'r2', type: 'step' },
-  { id: 'e-i5-r2', source: 'i5', target: 'r2', type: 'step' },
-  { id: 'e-i6-r2', source: 'i6', target: 'r2', type: 'step', label: 'Metered Addition' },
-  { id: 'e-r2-b2', source: 'r2', target: 'b2_out', type: 'step' },
+  { id: 'e-v102a-p102', source: 'v102a', target: 'p102', type: 'step' },
+  { id: 'e-p102-r102', source: 'p102', target: 'r102', type: 'step', label: '1 Hr Metered Addition' },
+  { id: 'e-b1-r102', source: 'b1_out', target: 'r102', type: 'step' },
+  { id: 'e-util-r102', source: 'util_cool', target: 'r102', type: 'step', label: 'TCV-102' },
+  { id: 'e-r102-b2', source: 'r102', target: 'b2_out', type: 'step' },
 
   // B3
   { id: 'e-b2-ex1', source: 'b2_out', target: 'ex1', type: 'step' },
