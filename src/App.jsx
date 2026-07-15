@@ -92,11 +92,16 @@ const initialNodes = [
   { id: 'b4_out', type: 'custom', position: { x: 790, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'API Slurry', subtitle: 'Esomeprazole Mg', hoverDetails: '<b>Details:</b> High-density slurry containing solid Esomeprazole Magnesium suspended in solvent <sup>[3]</sup>', typeClass: 'node-product' } },
 
   // Block 5 Nodes
-  { id: 'i12', type: 'custom', position: { x: 30, y: 200 }, parentId: 'b5', extent: 'parent', data: { title: 'Anti-Solvent', subtitle: 'Acetone / Methanol', typeClass: 'node-input' } },
-  { id: 'cr1', type: 'custom', position: { x: 270, y: 200 }, parentId: 'b5', extent: 'parent', data: { title: 'Crystallizer', subtitle: 'Concentration & Cooling', typeClass: 'node-unitOp' } },
-  { id: 'fl1', type: 'custom', position: { x: 530, y: 200 }, parentId: 'b5', extent: 'parent', data: { title: 'Filter Dryer', subtitle: 'Agitated Nutsche<br/>Filtration & Vacuum Drying', typeClass: 'node-unitOp' } },
-  { id: 'sru', type: 'custom', position: { x: 530, y: 80 }, parentId: 'b5', extent: 'parent', data: { title: 'SRU', subtitle: 'Solvent Recovery Unit', typeClass: 'node-waste' } },
-  { id: 'out', type: 'custom', position: { x: 790, y: 200 }, parentId: 'b5', extent: 'parent', data: { title: 'Esomeprazole API', subtitle: 'Final Product<br/>>99.5% ee', typeClass: 'node-product' } },
+  { id: 'v106a', type: 'custom', position: { x: 30, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'Anti-Solvent', subtitle: 'Acetone', hoverDetails: '<b>Tag:</b> V-106A <sup>[4]</sup><br/><b>Details:</b> Acetone Anti-Solvent to drive supersaturation', typeClass: 'node-input' } },
+  { id: 'cr105', type: 'custom', position: { x: 270, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'Final Crystallizer', subtitle: 'Controlled Cooling', hoverDetails: '<b>Tag:</b> CR-105 <sup>[3]</sup><br/><b>Details:</b> GLR Cooling Crystallizer<br/>Cooling Curve Loop (TIC-105): 30°C to 5°C over 10 hrs <sup>[4]</sup>', typeClass: 'node-unitOp' } },
+  
+  { id: 'v106b', type: 'custom', position: { x: 270, y: 300 }, parentId: 'b5', extent: 'parent', data: { title: 'Wash Solvent', subtitle: 'Chilled Acetone', hoverDetails: '<b>Tag:</b> V-106B<br/><b>Details:</b> Chilled Acetone wash to remove surface impurities', typeClass: 'node-input' } },
+  { id: 'f105', type: 'custom', position: { x: 530, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'ANFD', subtitle: 'Filter & Dryer', hoverDetails: '<b>Tag:</b> F-105 <sup>[4]</sup><br/><b>Details:</b> Hastelloy C-22 Agitated Nutsche Filter Dryer<br/>Vacuum Drying Loop (PIC-105) & Mild Heat (TIC-106) max 40°C <sup>[3]</sup>', typeClass: 'node-unitOp' } },
+  
+  { id: 'w_ml2', type: 'custom', position: { x: 790, y: 300 }, parentId: 'b5', extent: 'parent', data: { title: 'Mother Liquor Waste', subtitle: 'SRU', hoverDetails: '<b>Details:</b> Filtrate Mother Liquor<br/>Routed to SRU for Acetone recovery', typeClass: 'node-waste' } },
+  { id: 'm105', type: 'custom', position: { x: 790, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'Conical Mill', subtitle: 'Particle Sizing', hoverDetails: '<b>Tag:</b> M-105<br/><b>Details:</b> Delumps powder to Pharmacopeial PSD (d90 &lt; 15 µm) <sup>[8]</sup>', typeClass: 'node-unitOp' } },
+  
+  { id: 'out', type: 'custom', position: { x: 790, y: 220 }, parentId: 'b5', extent: 'parent', data: { title: 'Final API', subtitle: 'Esomeprazole Mg Trihydrate', hoverDetails: '<b>Details:</b> Pure Esomeprazole Magnesium Trihydrate<br/>Packaged in HDPE drums with double LDPE liners <sup>[3]</sup>', typeClass: 'node-product' } },
 ];
 
 const initialEdges = [
@@ -155,11 +160,16 @@ const initialEdges = [
   { id: 'e-r104b-b4', source: 'r104b', target: 'b4_out', type: 'step', label: 'PIC-104 Vacuum' },
 
   // B5
-  { id: 'e-b4-cr1', source: 'b4_out', target: 'cr1', type: 'step' },
-  { id: 'e-i12-cr1', source: 'i12', target: 'cr1', type: 'step' },
-  { id: 'e-cr1-fl1', source: 'cr1', target: 'fl1', type: 'step', label: 'API Slurry' },
-  { id: 'e-fl1-sru', source: 'fl1', target: 'sru', type: 'step', className: 'waste-edge', label: 'Mother Liquor' },
-  { id: 'e-fl1-out', source: 'fl1', target: 'out', type: 'step', className: 'product-edge' },
+  { id: 'e-b4-cr105', source: 'b4_out', target: 'cr105', type: 'step' },
+  { id: 'e-v106a-cr105', source: 'v106a', target: 'cr105', type: 'step', label: 'TIC-105 (10 Hr)' },
+  
+  { id: 'e-cr105-f105', source: 'cr105', target: 'f105', type: 'step', label: 'Cold Slurry' },
+  { id: 'e-v106b-f105', source: 'v106b', target: 'f105', type: 'step', label: 'Wash' },
+  
+  { id: 'e-f105-w_ml2', source: 'f105', target: 'w_ml2', type: 'step', className: 'waste-edge', label: 'Vacuum Filtration' },
+  { id: 'e-f105-m105', source: 'f105', target: 'm105', type: 'step', label: 'PIC-105 Drying (40°C Max)' },
+  
+  { id: 'e-m105-out', source: 'm105', target: 'out', type: 'step', label: 'd90 < 15 µm' },
 ];
 
 export default function App() {
