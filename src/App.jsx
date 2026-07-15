@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -154,6 +154,7 @@ const initialEdges = [
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [showRefs, setShowRefs] = useState(false);
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
@@ -163,13 +164,32 @@ export default function App() {
         <h1>Esomeprazole API Synthesis</h1>
         <p>Process Flow Diagram (PFD)</p>
       </header>
-      <div className="sources-panel">
-        <strong>Process References</strong>
-        <ul>
-          <li>Cotton, H., et al. (2000). "Asymmetric synthesis of esomeprazole." <i>Tetrahedron: Asymmetry</i>, 11(18), 3819-3825.</li>
-          <li>Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i> (5th ed.). Prentice Hall.</li>
-        </ul>
+      
+      <div className="references-container">
+        <button className="ref-button" onClick={() => setShowRefs(!showRefs)}>
+          📚 Process References {showRefs ? '▲' : '▼'}
+        </button>
+        {showRefs && (
+          <div className="ref-dropdown">
+            <strong>Primary Literature</strong>
+            <ul>
+              <li>Cotton, H., et al. (2000). "Asymmetric synthesis of esomeprazole." <i>Tetrahedron: Asymmetry</i>, 11(18), 3819-3825.</li>
+              <li>Song, et al. (2014) & Li, et al. (2014). Reaction scale-up and optimization parameters.</li>
+            </ul>
+            <strong>Patents</strong>
+            <ul>
+              <li>US Patent 6,174,548 & US Patent 6,369,085 (AstraZeneca). Salt formation & crystallization.</li>
+            </ul>
+            <strong>Engineering Design</strong>
+            <ul>
+              <li>Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i> (5th ed.).</li>
+              <li>Peters, M., & Timmerhaus, K. <i>Plant Design and Economics for Chemical Engineers</i>.</li>
+              <li>Levin, M. (Ed.). <i>Pharmaceutical Process Scale-Up</i>.</li>
+            </ul>
+          </div>
+        )}
       </div>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
