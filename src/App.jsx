@@ -172,10 +172,55 @@ const initialEdges = [
   { id: 'e-m105-out', source: 'm105', target: 'out', type: 'step', label: 'Milled API · d90 < 15 µm' },
 ];
 
+// Approximate per-batch stream / material balance (scoping figures — see note).
+// Liquid volumes converted at nominal densities: toluene 0.87, MIBK 0.80, aq. NH3 0.95 kg/L.
+const massBalance = [
+  { block: 'Block 1 — Catalyst Complexation', rows: [
+    { dir: 'in',    stream: 'Toluene (solvent)',           comp: 'C7H8',            amt: '25 L ≈ 21.7 kg' },
+    { dir: 'in',    stream: 'Pyrmetazole (substrate)',     comp: 'C17H19N3O2S',     amt: '6.2 kg / 18.8 mol' },
+    { dir: 'in',    stream: 'DIPEA (base/buffer)',         comp: '(iPr)2NEt',       amt: '0.72 kg' },
+    { dir: 'in',    stream: '(S,S)-DET (ligand)',          comp: 'C8H14O6',         amt: '2.35 kg / 11.4 mol' },
+    { dir: 'in',    stream: 'Water (activator)',           comp: 'H2O',             amt: '0.044 kg / 2.4 mol' },
+    { dir: 'in',    stream: 'Ti(OiPr)4 (catalyst)',        comp: 'Ti(OC3H7)4',      amt: '1.60 kg / 5.6 mol' },
+    { dir: 'out',   stream: 'Ti-complex solution → B2',    comp: 'complex in toluene', amt: '≈ 32.6 kg' },
+    { dir: 'waste', stream: 'Separated water (Dean-Stark)', comp: 'H2O',            amt: 'trace (est.)' },
+    { dir: 'waste', stream: 'Vent',                        comp: 'N2 / air',        amt: 'gas' },
+  ]},
+  { block: 'Block 2 — Asymmetric Sulfoxidation', rows: [
+    { dir: 'in',    stream: 'Ti-complex solution (from B1)', comp: 'complex in toluene', amt: '≈ 32.6 kg' },
+    { dir: 'in',    stream: 'Cumene hydroperoxide (CHP)',  comp: 'C9H12O2',         amt: '3.30 kg / ~21.7 mol' },
+    { dir: 'out',   stream: 'Crude esomeprazole → B3',     comp: 'product + cumyl alcohol + unreacted + Ti + toluene', amt: '≈ 35.9 kg (API ~6.5 kg est.)' },
+  ]},
+  { block: 'Block 3 — Extraction & Phase Separation', rows: [
+    { dir: 'in',    stream: 'Crude stream (from B2)',      comp: 'crude in toluene', amt: '≈ 35.9 kg' },
+    { dir: 'in',    stream: 'Aq. ammonia 12.5%',           comp: 'NH3 / H2O',       amt: '60 L ≈ 57 kg (NH3 ~7.1 kg)' },
+    { dir: 'in',    stream: 'MIBK (wash + extract)',       comp: 'C6H12O',          amt: '18 L ≈ 14.4 kg' },
+    { dir: 'in',    stream: 'Acetic acid (pH adjust)',     comp: 'CH3COOH',         amt: 'to pH 7.5–8.5 (est.)' },
+    { dir: 'out',   stream: 'Free base in MIBK → B4',      comp: 'esomeprazole free base + 9 L MIBK', amt: '≈ 13.7 kg (base ~6.5 kg est.)' },
+    { dir: 'waste', stream: 'Waste toluene + Ti → SRU',    comp: 'toluene + spent catalyst', amt: '≈ 21.7 kg' },
+    { dir: 'waste', stream: 'Aq. ammonium acetate → ETP',  comp: 'CH3COONH4 / H2O', amt: '≈ 57 kg' },
+  ]},
+  { block: 'Block 4 — API Salt Formation (Pathway B)', rows: [
+    { dir: 'in',    stream: 'Free base / MIBK (from B3)',  comp: 'free base in MIBK', amt: '≈ 13.7 kg' },
+    { dir: 'in',    stream: 'KOMe (methanolic)',           comp: 'CH3OK / MeOH',    amt: 'est.' },
+    { dir: 'in',    stream: 'MgSO4·7H2O',                  comp: 'MgSO4·7H2O',      amt: '~2.3 kg (est., ~0.5 eq Mg)' },
+    { dir: 'out',   stream: 'Esomeprazole-Mg slurry → B5', comp: 'solid Mg salt in solvent', amt: 'API ~6.5 kg (est.)' },
+    { dir: 'waste', stream: 'Impurity mother liquor → ETP', comp: 'MeOH/toluene + impurities', amt: 'est.' },
+    { dir: 'waste', stream: 'K2SO4 liquor → ETP',          comp: 'K2SO4 (aq.)',     amt: 'est.' },
+  ]},
+  { block: 'Block 5 — Crystallization & Isolation', rows: [
+    { dir: 'in',    stream: 'API slurry (from B4)',        comp: 'Mg salt in solvent', amt: 'API ~6.5 kg (est.)' },
+    { dir: 'in',    stream: 'Acetone (anti-solvent + wash)', comp: '(CH3)2CO',      amt: 'est.' },
+    { dir: 'out',   stream: 'Final API (product)',         comp: 'esomeprazole Mg trihydrate', amt: '≈ 6–7 kg (est., ~90% overall)' },
+    { dir: 'waste', stream: 'Mother liquor → SRU',         comp: 'acetone filtrate', amt: 'est.' },
+  ]},
+];
+
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [showRefs, setShowRefs] = useState(false);
+  const [showBalance, setShowBalance] = useState(false);
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
@@ -214,6 +259,40 @@ export default function App() {
               <li>[9] <i>Process Selection & Justification</i></li>
               <li>[10] <i>Equipment Mass/Energy Balances & Design Specifications</i></li>
             </ul>
+          </div>
+        )}
+
+        <button className="ref-button balance-button" onClick={() => setShowBalance(!showBalance)}>
+          ⚖️ Mass Balance {showBalance ? '▲' : '▼'}
+        </button>
+        {showBalance && (
+          <div className="balance-dropdown">
+            {massBalance.map((b) => (
+              <div key={b.block}>
+                <h4>{b.block}</h4>
+                <table className="balance-table">
+                  <thead>
+                    <tr><th>Dir</th><th>Stream</th><th>Components</th><th>Approx amount</th></tr>
+                  </thead>
+                  <tbody>
+                    {b.rows.map((r, i) => (
+                      <tr key={i} className={`balance-${r.dir}`}>
+                        <td className="dir-cell">{r.dir === 'in' ? 'In' : r.dir === 'out' ? 'Out' : 'Waste'}</td>
+                        <td>{r.stream}</td>
+                        <td>{r.comp}</td>
+                        <td className="amt">{r.amt}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+            <div className="balance-note">
+              Approximate per-batch scoping figures. Feed masses from Refs [1][3][10];
+              liquid volumes converted at nominal densities (toluene 0.87, MIBK 0.80,
+              aq. NH₃ 0.95 kg/L). Values marked (est.) are placeholders pending the full
+              balance — solvent recycles, yields and losses not yet closed.
+            </div>
           </div>
         )}
       </div>
