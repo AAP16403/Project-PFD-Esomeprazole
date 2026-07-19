@@ -135,14 +135,14 @@ header p {
   transform: translateX(-50%);
   background-color: #333333;
   color: #ffffff;
-  text-align: center;
-  padding: 8px 10px;
+  text-align: left;
+  padding: 10px 12px;
   border-radius: 6px;
-  width: 220px;
+  width: 320px;
   margin-bottom: 12px;
   z-index: 1000;
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.5;
   transition: opacity 0.2s ease-in-out;
   box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
   pointer-events: none;
@@ -151,6 +151,20 @@ header p {
 
 .node-tooltip b {
   color: #ffca28;
+  display: inline-block;
+  min-width: 52px;
+  vertical-align: top;
+}
+
+.node-tooltip hr {
+  border: none;
+  border-top: 1px solid #555;
+  margin: 6px 0;
+}
+
+.node-tooltip .tip-note {
+  color: #bdbdbd;
+  font-style: italic;
 }
 
 .node-tooltip::after {
