@@ -7,19 +7,58 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  reconnectEdge,
   Handle,
+  NodeResizer,
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
+const getUnitOperationType = (data) => {
+  if (data.unitOperation) return data.unitOperation;
+  const title = data.title || '';
+  if (/Pump/i.test(title)) return 'Metered liquid dosing';
+  if (/Hopper/i.test(title)) return 'Solids charging';
+  if (/Extractor|Mixer/i.test(title)) return 'Liquid–liquid extraction and phase separation';
+  if (/Receiver/i.test(title)) return 'Intermediate hold / surge';
+  if (/Reactor|STR/i.test(title)) return 'Agitated reaction or precipitation';
+  if (/Separator|Condenser/i.test(title)) return 'Condensation / phase separation';
+  if (/Vessel|Supply|Source|Ammonia|Acid|MIBK|Hydroxide|Acetonitrile|Water|Oxidant|Magnesium Chloride/i.test(title)) return 'Feed vessel / dosing point';
+  if (/Filter|ANFD/i.test(title)) return 'Solid–liquid filtration';
+  if (/Mill|Sieve/i.test(title)) return 'Particle-size conditioning';
+  if (/Sampling|Check/i.test(title)) return 'In-process quality-control sampling';
+  if (/Cooling Phase/i.test(title)) return 'Controlled cooling / equilibration';
+  if (/Vent/i.test(title)) return 'Pressure relief / vent handling';
+  if (data.typeClass === 'node-input') return 'Material / utility feed';
+  if (data.typeClass === 'node-waste') return 'Waste or recovery outlet';
+  if (data.typeClass === 'node-product') return 'Intermediate / product handoff';
+  return 'Process unit operation';
+};
+
+const getPfdRepresentation = (data) => {
+  if (data.pfdRepresentation) return data.pfdRepresentation;
+  const title = data.title || '';
+  if (/Filter|ANFD/i.test(title)) return 'Filter box with cake and filtrate outlets';
+  if (/Reactor|STR|Extractor|Receiver/i.test(title)) return 'Vessel box with feed and product arrows';
+  if (/Condenser|Separator/i.test(title)) return 'Heat-exchanger/separator box with return and outlet';
+  if (/Pump/i.test(title)) return 'Pump symbol on metered feed line';
+  if (/Mill|Sieve/i.test(title)) return 'Milling/sieving box on dry-solid line';
+  if (/Sampling|Check/i.test(title)) return 'QC sample point attached to stream';
+  if (data.typeClass === 'node-input') return 'Feed arrow to vessel or unit';
+  if (data.typeClass === 'node-waste') return 'Waste/recovery arrow from unit';
+  if (data.typeClass === 'node-product') return 'Product/intermediate stream arrow';
+  return 'Equipment box with inlet/outlet streams';
+};
+
 const CustomNode = ({ data }) => {
+  const detailHeader = `<b>Label:</b> ${data.title}<br/><b>Unit operation:</b> ${getUnitOperationType(data)}<br/><b>PFD representation:</b> ${getPfdRepresentation(data)}<br/>`;
   return (
     <div className={`custom-node ${data.typeClass}`}>
       <Handle type="target" position={Position.Left} />
       <div className="node-title">{data.title}</div>
       {data.subtitle && <div className="node-subtitle" dangerouslySetInnerHTML={{ __html: data.subtitle }}></div>}
       {data.hoverDetails && (
-        <div className="node-tooltip" dangerouslySetInnerHTML={{ __html: data.hoverDetails }}></div>
+        <div className="node-tooltip" dangerouslySetInnerHTML={{ __html: detailHeader + data.hoverDetails }}></div>
       )}
       <Handle type="source" position={Position.Right} />
     </div>
@@ -28,32 +67,47 @@ const CustomNode = ({ data }) => {
 
 const nodeTypes = { custom: CustomNode };
 
+const GroupNode = ({ data, selected }) => (
+  <>
+    <NodeResizer
+      isVisible={selected}
+      minWidth={500}
+      minHeight={300}
+      lineStyle={{ borderStyle: 'dotted' }}
+      handleStyle={{ width: 10, height: 10, borderRadius: 0 }}
+    />
+    <div className="group-node-label">{data.label}</div>
+  </>
+);
+
+nodeTypes.group = GroupNode;
+
 const initialNodes = [
   // Groups
   { id: 'b1', type: 'group', position: { x: 0, y: 0 }, style: { width: 1350, height: 850 }, data: { label: 'Block 1: Raw Material & Catalyst Complexation' } },
   { id: 'b2', type: 'group', position: { x: 1450, y: 150 }, style: { width: 750, height: 450 }, data: { label: 'Block 2: Catalytic Asymmetric Sulfoxidation' } },
-  { id: 'b3', type: 'group', position: { x: 2300, y: 0 }, style: { width: 800, height: 750 }, data: { label: 'Block 3: Extraction and Phase Separation' } },
-  { id: 'b4', type: 'group', position: { x: 3200, y: 350 }, style: { width: 1050, height: 400 }, data: { label: 'Block 4: API Salt Formation' } },
-  { id: 'b5', type: 'group', position: { x: 4350, y: 350 }, style: { width: 1050, height: 400 }, data: { label: 'Block 5: Crystallization and Final Isolation' } },
+  { id: 'b3', type: 'group', position: { x: 2300, y: 0 }, style: { width: 1450, height: 850 }, data: { label: 'Block 3: Extraction, Sodium-Salt Formation & Isolation' } },
+  { id: 'b4', type: 'group', position: { x: 3850, y: 100 }, style: { width: 950, height: 650 }, data: { label: 'Block 4: Aqueous Magnesium-Salt Precipitation' } },
+  { id: 'b5', type: 'group', position: { x: 4900, y: 150 }, style: { width: 950, height: 550 }, data: { label: 'Block 5: Wet-Cake Conditioning, Drying & Packaging' } },
 
   // Block 1 Nodes
   { id: 'v101a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solvent Vessel', subtitle: 'Toluene', hoverDetails: '<b>Tag:</b> V-101A <sup>[4]</sup><br/><b>Type:</b> Toluene charge vessel &rarr; R-101<br/><b>How:</b> FT-101 Coriolis meter totalizes mass flow to the DCS, which snaps FCV-101 shut the instant 25 L is reached — the charge is exact no matter how the pump drifts.<br/><b>Spec:</b> 25 L toluene (reaction solvent) <sup>[7, 10]</sup>', typeClass: 'node-input' } },
   { id: 'v101b', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solid Hopper', subtitle: 'Pyrmetazole', hoverDetails: '<b>Tag:</b> V-101B <sup>[4]</sup><br/><b>Type:</b> Solid charge hopper<br/><b>How:</b> A rotary airlock turns the solid in through sealed pockets, metering it into the stirred toluene without ever opening the vessel to air (keeps the N&#8322; blanket intact).<br/><b>Spec:</b> 6.2 kg pyrmetazole (18.8 mol) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
   { id: 'amine_in', type: 'custom', position: { x: 450, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Base Supply', subtitle: 'Amine', hoverDetails: '<b>Type:</b> DIPEA base charge (metered liquid)<br/><b>How:</b> The tertiary amine mops up trace acid so the titanium&ndash;tartrate complex can&rsquo;t acid-decompose, and buffers the batch pH steady.<br/><b>Spec:</b> 0.72 kg DIPEA ((iPr)&#8322;NEt) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
   { id: 'det_in', type: 'custom', position: { x: 650, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Ligand Supply', subtitle: '(S,S)-DET', hoverDetails: '<b>Type:</b> Chiral ligand charge via XV-102<br/><b>How:</b> XV-102 opens once at temperature; the tartrate chelates titanium and its (S,S) handedness is what forces the S-sulfoxide downstream — this is the step that makes the drug &ldquo;eso&rdquo;.<br/><b>Spec:</b> 2.35 kg (11.4 mol) (S,S)-diethyl tartrate <sup>[1]</sup>', typeClass: 'node-input' } },
-  { id: 'w_src', type: 'custom', position: { x: 850, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Supply', subtitle: 'Ultra-Pure', hoverDetails: '<b>Type:</b> Ultra-pure water micro-charge<br/><b>How:</b> Dosed through hair-bore capillary straight into the liquid so none is lost to pipe dead-legs; the water stoichiometrically activates the Ti complex — too much would hydrolyze it.<br/><b>Spec:</b> exactly 44 mL water (2.4 mol) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
-  { id: 'p101', type: 'custom', position: { x: 850, y: 150 }, parentId: 'b1', extent: 'parent', data: { title: 'Micro-Pump', subtitle: 'Dosing', hoverDetails: '<b>Tag:</b> P-101<br/><b>Type:</b> Positive-displacement metering pump<br/><b>How:</b> Each stroke delivers a fixed micro-volume, so stroke count sets the dose to within drops — that is how 44 mL is hit accurately at plant scale.<br/><b>Spec:</b> injects the 44 mL water charge <sup>[4, 7]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'w_src', type: 'custom', position: { x: 850, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Supply', subtitle: 'Catalyst Activation', hoverDetails: '<b>Type:</b> Qualified water charge<br/><b>Duty:</b> Supply the controlled water charge used during titanium–tartrate complex preparation. The approved batch record defines the amount and addition sequence. <sup>[1]</sup>', typeClass: 'node-input' } },
+  { id: 'p101', type: 'custom', position: { x: 850, y: 150 }, parentId: 'b1', extent: 'parent', data: { title: 'Micro-Pump', subtitle: 'Water Dosing', hoverDetails: '<b>Tag:</b> P-101<br/><b>Type:</b> Metered liquid dosing pump<br/><b>Duty:</b> Transfer the qualified water charge into the complexation reactor at the approved addition point and rate.', typeClass: 'node-unitOp' } },
   { id: 'v101c', type: 'custom', position: { x: 1050, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Dosing Vessel', subtitle: 'Titanium Source', hoverDetails: '<b>Tag:</b> V-101C<br/><b>Type:</b> Inerted micro-dosing vessel<br/><b>How:</b> Air-sensitive Ti(OiPr)&#8324; is pushed under N&#8322; pressure through XV-103 down a dip-tube that discharges below the liquid line — no splashing onto dry walls where it would gel. <sup>[5]</sup><br/><b>Spec:</b> 1.60 kg Ti(OiPr)&#8324; (5.6 mol) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
 
   { id: 'n2_in', type: 'custom', position: { x: 50, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Inert Gas', subtitle: 'Nitrogen', hoverDetails: '<b>Loop:</b> PIC-101 (inerting) <sup>[7]</sup><br/><b>Type:</b> N&#8322; purge / blanket<br/><b>How:</b> PT-101 watches headspace pressure; when it sags, XV-101 pulses N&#8322; in and PCV-101 bleeds off the displaced air, holding a slight positive pressure so air can never leak in and oxidize the catalyst.<br/><b>Spec:</b> ~1.1 bar positive', typeClass: 'node-input' } },
   { id: 'util_in', type: 'custom', position: { x: 50, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Utilities', subtitle: 'Heating/Cooling', hoverDetails: '<b>Loop:</b> TIC-101 (jacket) <sup>[7]</sup><br/><b>Type:</b> Reactor-jacket thermal utility<br/><b>How:</b> TT-101 (tantalum tip survives the process fluid) drives a PID that strokes TCV-101 to add hot water/LP steam or TCV-102 to add chilled water, holding the jacket so the bulk sits at setpoint.<br/><b>Spec:</b> 50–54°C setpoint', typeClass: 'node-input' } },
 
   { id: 'e101', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b1', extent: 'parent', data: { title: 'Condenser', subtitle: 'Reflux', hoverDetails: '<b>Tag:</b> E-101<br/><b>Type:</b> Vertical shell &amp; tube exchanger on the vapor nozzle <sup>[6]</sup><br/><b>How:</b> Cooling water in the shell condenses boiling toluene and gravity-returns it to R-101, so solvent isn&rsquo;t lost and the mass balance holds through reflux.<br/><b>Spec:</b> maintains reflux at 50–54°C', typeClass: 'node-unitOp' } },
-  { id: 'ds_trap', type: 'custom', position: { x: 350, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Separator', subtitle: 'Azeotropic', hoverDetails: '<b>Type:</b> Dean-Stark decanter trap<br/><b>How:</b> The toluene&ndash;water azeotrope condenses into the trap and splits by density; water is drawn off the bottom and dry toluene overflows back — this dries the batch before the exact 44 mL dose. <sup>[1, 8]</sup><br/><b>Spec:</b> removes residual water', typeClass: 'node-unitOp' } },
-  { id: 'waste_water', type: 'custom', position: { x: 150, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Waste', subtitle: 'Azeotrope H2O', hoverDetails: '<b>Type:</b> Water knock-out<br/><b>How:</b> The uncontrolled water separated by the Dean-Stark trap collects here and is discarded, so only the metered 44 mL water is left in play.<br/><b>Route:</b> to waste', typeClass: 'node-waste' } },
+  { id: 'ds_trap', type: 'custom', position: { x: 350, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Separator', subtitle: 'Azeotropic Decanter', hoverDetails: '<b>Type:</b> Condensate phase separator<br/><b>Duty:</b> Separate condensed water from the toluene reflux loop and return the organic phase to the reactor. Use only where required by the approved process description.', typeClass: 'node-unitOp' } },
+  { id: 'waste_water', type: 'custom', position: { x: 150, y: 250 }, parentId: 'b1', extent: 'parent', data: { title: 'Separated Water', subtitle: 'Aqueous Waste', hoverDetails: '<b>Type:</b> Water-rich decanter phase<br/><b>Disposition:</b> Segregate and route to the approved aqueous-waste treatment path after characterization.', typeClass: 'node-waste' } },
 
   { id: 'r101', type: 'custom', position: { x: 550, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Complexation STR', subtitle: 'Reactor', hoverDetails: '<b>Tag:</b> R-101 <sup>[4]</sup><br/><b>Type:</b> Jacketed glass-lined STR (GLR) <sup>[5]</sup><br/><b>How:</b> The glass lining blocks metal-ion pickup (metals would wreck the Block 2 peroxide); VFD agitator M-101 keeps the 6.2 kg solid suspended while reflux + TIC-101 hold 50–54°C for ~50 min to build the dinuclear Ti complex. PSE-101 disc / PRV-101 relief protect it. <sup>[8]</sup><br/><b>Spec:</b> 45–50 min, 50–54°C <sup>[1]</sup>', typeClass: 'node-unitOp' } },
-  { id: 'qc_port', type: 'custom', position: { x: 800, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'QC Sampling', subtitle: 'Karl Fischer', hoverDetails: '<b>Type:</b> Karl Fischer sample port<br/><b>How:</b> A grab sample is KF-titrated (iodine consumed is proportional to water); titanium is charged only once moisture reads &lt; 0.05%, because any excess water would hydrolyze the catalyst.<br/><b>Spec:</b> gate — moisture &lt; 0.05% <sup>[2]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'qc_port', type: 'custom', position: { x: 800, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'QC Sampling', subtitle: 'Moisture / Appearance Check', hoverDetails: '<b>Type:</b> In-process sample point<br/><b>Duty:</b> Collect a representative sample for the approved moisture and appearance checks before the batch proceeds. Acceptance criteria belong in the batch record and specification.', typeClass: 'node-unitOp' } },
   { id: 'vent', type: 'custom', position: { x: 1050, y: 300 }, parentId: 'b1', extent: 'parent', data: { title: 'Vent System', subtitle: 'Pressure Relief', hoverDetails: '<b>Type:</b> Relief header + knock-out drum <sup>[8]</sup><br/><b>How:</b> Normal displaced gas leaves through PCV-101; on overpressure PRV-101 and rupture disc PSE-101 blow to a knock-out drum that traps liquid before the safe vent.<br/><b>Route:</b> safe vent', typeClass: 'node-waste' } },
 
   { id: 'cool_phase', type: 'custom', position: { x: 550, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Cooling Phase', subtitle: 'Equilibration', hoverDetails: '<b>Type:</b> In-reactor cooldown step<br/><b>How:</b> TIC-101 switches the jacket to chilled water via TCV-102, dropping the batch 54°C &rarr; 25°C so the complex is stable and the next (exothermic) sulfoxidation stays controllable.<br/><b>Spec:</b> 54°C &rarr; 25°C <sup>[1, 10]</sup>', typeClass: 'node-unitOp' } },
@@ -61,47 +115,45 @@ const initialNodes = [
   { id: 'b1_out', type: 'custom', position: { x: 550, y: 700 }, parentId: 'b1', extent: 'parent', data: { title: 'Active Ti-Complex', subtitle: 'Intermediate', hoverDetails: '<b>Type:</b> Intermediate stream &rarr; R-102<br/><b>How:</b> Cooled homogeneous suspension is transferred under N&#8322; to Block 2, carrying the active catalyst into the sulfoxidation.<br/><b>Spec:</b> dinuclear Ti-pyrmetazole complex in 25 L toluene <sup>[1]</sup>', typeClass: 'node-product' } },
 
   // Block 2 Nodes
-  { id: 'v102a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidant Vessel', subtitle: 'CHP', hoverDetails: '<b>Tag:</b> V-102A <sup>[4]</sup><br/><b>Type:</b> Cooled oxidant charge vessel<br/><b>How:</b> Holds thermally-sensitive CHP cold and isolated, feeding it only to P-102 so the oxidant is always added slowly and never dumped into the reactor.<br/><b>Spec:</b> 3.30 kg cumene hydroperoxide (CHP) <sup>[1, 8, 10]</sup>', typeClass: 'node-input' } },
+  { id: 'v102a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidant Vessel', subtitle: 'Cumene Hydroperoxide', hoverDetails: '<b>Tag:</b> V-102A<br/><b>Type:</b> Qualified CHP charge vessel<br/><b>Duty:</b> Hold and transfer the hydroperoxide oxidant to the controlled dosing point. Assay, carrier, and charge are defined by the material CoA and batch record.', typeClass: 'node-input' } },
   { id: 'p102', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Dosing Pump', subtitle: 'Controlled Flow', hoverDetails: '<b>Tag:</b> P-102<br/><b>Type:</b> High-precision metering pump<br/><b>How:</b> Trickles CHP in over ~1 hr so reaction heat is released gradually and the jacket can keep pace — a fast charge would run the exotherm away.<br/><b>Spec:</b> ~1 hr metered addition <sup>[5]</sup>', typeClass: 'node-unitOp' } },
   { id: 'util_cool', type: 'custom', position: { x: 50, y: 250 }, parentId: 'b2', extent: 'parent', data: { title: 'Chilled Water', subtitle: 'Max Cooling', hoverDetails: '<b>Loop:</b> TIC-102 <sup>[7]</sup><br/><b>Type:</b> Jacket chilled-water utility<br/><b>How:</b> TT-102 drives TCV-102 to flood the jacket with chilled water, soaking up the large heat of reaction and pinning the batch at 30°C.<br/><b>Spec:</b> absorbs ΔH ≈ -250 to -350 kJ/mol <sup>[2]</sup>', typeClass: 'node-input' } },
-  { id: 'r102', type: 'custom', position: { x: 250, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidation STR', subtitle: 'Reaction Phase', hoverDetails: '<b>Tag:</b> R-102 (or Phase 2 of R-101) <sup>[4]</sup><br/><b>Type:</b> Jacketed GLR stirred-tank reactor<br/><b>How:</b> The chiral Ti complex steers CHP to oxidize the sulfide enantioselectively to the S-sulfoxide; TIC-102 holds 30°C and a high-temp alarm interlocks the dose, because overheating over-oxidizes to the sulfone impurity.<br/><b>Spec:</b> 30°C, ~1 hr <sup>[1, 8]</sup>', typeClass: 'node-unitOp' } },
-  { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Extract', subtitle: 'Crude Esomeprazole', hoverDetails: '<b>Type:</b> Crude product stream &rarr; EX-101<br/><b>How:</b> Reaction held and carried forward with its spent catalyst and solvent still in the mix, to be cleaned up by extraction in Block 3.<br/><b>Spec:</b> ee &gt; 94%; + unreacted pyrmetazole, Ti-complex, toluene <sup>[1, 10]</sup>', typeClass: 'node-product' } },
+  { id: 'r102', type: 'custom', position: { x: 250, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidation STR', subtitle: 'Asymmetric Sulfoxidation', hoverDetails: '<b>Tag:</b> R-102<br/><b>Type:</b> Jacketed stirred-tank reactor<br/><b>Duty:</b> Contact the activated titanium complex with CHP to oxidize the sulfide to the S-sulfoxide. Temperature, addition rate, and endpoint are controlled by the approved batch record. <sup>[1]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Reaction Mixture', subtitle: 'S-Sulfoxide in Process Solvent', hoverDetails: '<b>Type:</b> Unpurified reaction output<br/><b>Contains:</b> Product sulfoxide with solvent, catalyst-derived species, unreacted material, and oxidation by-products; transfers to Block 3 extraction.', typeClass: 'node-product' } },
 
-  // Block 3 Nodes
-  { id: 'v104a', type: 'custom', position: { x: 30, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous NH3', subtitle: '12.5%', hoverDetails: '<b>Tag:</b> V-104A<br/><b>Type:</b> Aqueous ammonia dosing tank<br/><b>How:</b> At high pH the ammonia strips the benzimidazole proton, turning esomeprazole into a water-soluble anion that migrates out of the toluene into the aqueous phase — leaving titanium and organics behind. Charged in 3&times;20 L portions.<br/><b>Spec:</b> 60 L 12.5% NH&#8323; <sup>[3]</sup>', typeClass: 'node-input' } },
-  { id: 'w_tol', type: 'custom', position: { x: 530, y: 250 }, parentId: 'b3', extent: 'parent', data: { title: 'Waste Toluene', subtitle: 'SRU', hoverDetails: '<b>Type:</b> Spent organic phase<br/><b>How:</b> The de-producted toluene, now carrying the degraded Ti catalyst, is drained off the top and routed to solvent recovery for reuse.<br/><b>Route:</b> &rarr; SRU <sup>[8]</sup>', typeClass: 'node-waste' } },
-  { id: 'ex101', type: 'custom', position: { x: 270, y: 350 }, parentId: 'b3', extent: 'parent', data: { title: 'Primary Extractor', subtitle: 'Mixer-Settler', hoverDetails: '<b>Tag:</b> EX-101 <sup>[6]</sup><br/><b>Type:</b> Jacketed mixer-settler (GLR / SS316L), Rushton turbine<br/><b>How:</b> The turbine disperses the two liquids for high mass-transfer, then agitation stops for a gravity settle; LT-101 (optical / conductivity / radar) at the drain senses the toluene&harr;water interface and closes XV-105 the instant the heavy aqueous phase finishes draining — a sharp cut with no carry-over. <sup>[7]</sup><br/><b>Spec:</b> mix 15–30 min, then settle', typeClass: 'node-unitOp' } },
+  // Block 3 Nodes — source route continues through isolated sodium salt
+  { id: 'v104a', type: 'custom', position: { x: 30, y: 120 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Ammonia', subtitle: 'Extraction Feed', hoverDetails: '<b>Type:</b> Aqueous ammonia supply<br/><b>Duty:</b> Repeated liquid-liquid contacts transfer esomeprazole into the aqueous phase. Charge details remain controlled by the batch record. <sup>[1, 3]</sup>', typeClass: 'node-input' } },
+  { id: 'ex101', type: 'custom', position: { x: 260, y: 180 }, parentId: 'b3', extent: 'parent', data: { title: 'Batch Extractor', subtitle: 'Three Ammonia Contacts', hoverDetails: '<b>Tag:</b> EX-101<br/><b>Type:</b> Agitated extraction/settling vessel<br/><b>Duty:</b> Contact, settle, phase-cut, and combine the aqueous product extracts. <sup>[1, 3]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'w_tol', type: 'custom', position: { x: 260, y: 40 }, parentId: 'b3', extent: 'parent', data: { title: 'Organic Raffinate', subtitle: 'Solvent Recovery / Waste', hoverDetails: '<b>Type:</b> Depleted organic phase<br/><b>Contains:</b> Toluene, spent catalyst, and organic impurities; disposition requires site waste characterization.', typeClass: 'node-waste' } },
+  { id: 'aq_hold', type: 'custom', position: { x: 500, y: 180 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Extract Receiver', subtitle: 'Combined Product Extracts', hoverDetails: '<b>Tag:</b> V-103A<br/><b>Duty:</b> Combine and homogenize the aqueous product-bearing phases before acidification and back-extraction.', typeClass: 'node-unitOp' } },
+  { id: 'v104c', type: 'custom', position: { x: 500, y: 40 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetic Acid', subtitle: 'Acidification Feed', hoverDetails: '<b>Type:</b> Metered acid supply<br/><b>Duty:</b> Adjust the aqueous extract for transfer of free esomeprazole into MIBK. Endpoint and charge are batch-record controls. <sup>[1, 3]</sup>', typeClass: 'node-input' } },
+  { id: 'v104b', type: 'custom', position: { x: 500, y: 330 }, parentId: 'b3', extent: 'parent', data: { title: 'MIBK', subtitle: 'Back-Extraction Solvent', hoverDetails: '<b>Type:</b> Solvent supply<br/><b>Duty:</b> Two source-reported product extractions; the recovered organic phases are combined. <sup>[1]</sup>', typeClass: 'node-input' } },
+  { id: 'ex102', type: 'custom', position: { x: 740, y: 180 }, parentId: 'b3', extent: 'parent', data: { title: 'Back Extractor', subtitle: 'Acidify / Extract / Separate', hoverDetails: '<b>Tag:</b> EX-102<br/><b>Type:</b> Agitated extraction/settling vessel<br/><b>Duty:</b> Acidification followed by repeated MIBK extraction and controlled phase separation. <sup>[1, 3]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'w_aq', type: 'custom', position: { x: 740, y: 330 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Raffinate', subtitle: 'Effluent Treatment', hoverDetails: '<b>Type:</b> Product-depleted aqueous phase<br/><b>Disposition:</b> Characterize and route through the site aqueous-waste system.', typeClass: 'node-waste' } },
+  { id: 'org_hold', type: 'custom', position: { x: 970, y: 180 }, parentId: 'b3', extent: 'parent', data: { title: 'Combined MIBK Receiver', subtitle: 'Free-Base Solution', hoverDetails: '<b>Tag:</b> V-103B<br/><b>Duty:</b> Combine the source-reported MIBK product extracts before sodium-salt formation. <sup>[1]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'v_naoh', type: 'custom', position: { x: 970, y: 40 }, parentId: 'b3', extent: 'parent', data: { title: 'Sodium Hydroxide', subtitle: 'Salt-Formation Feed', hoverDetails: '<b>Type:</b> Qualified caustic solution supply<br/><b>Duty:</b> Form esomeprazole sodium. Assay correction and charge are controlled from the material CoA and batch record. <sup>[1, 3]</sup>', typeClass: 'node-input' } },
+  { id: 'v_acn', type: 'custom', position: { x: 970, y: 330 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetonitrile', subtitle: 'Crystallization Solvent', hoverDetails: '<b>Type:</b> Qualified solvent supply<br/><b>Duty:</b> Provide the source-route medium for sodium-salt formation and isolation. <sup>[1, 3]</sup>', typeClass: 'node-input' } },
+  { id: 'r103', type: 'custom', position: { x: 1170, y: 180 }, parentId: 'b3', extent: 'parent', data: { title: 'Salt Formation / Crystallizer', subtitle: 'NaOH + Acetonitrile', hoverDetails: '<b>Tag:</b> R-103<br/><b>Type:</b> Agitated, temperature-controlled vessel with concentration capability<br/><b>Duty:</b> Form the sodium salt, concentrate as required, and develop an isolable slurry. Detailed endpoint and isolation conditions require the approved batch record. <sup>[1, 3]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'f103', type: 'custom', position: { x: 1170, y: 500 }, parentId: 'b3', extent: 'parent', data: { title: 'Sodium-Salt Filter', subtitle: 'Solid / Liquid Isolation', hoverDetails: '<b>Tag:</b> F-103<br/><b>Type:</b> Contained filter<br/><b>Duty:</b> Isolate the crystalline sodium salt and separate its mother liquor. <sup>[1, 3]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'w_cond', type: 'custom', position: { x: 1170, y: 40 }, parentId: 'b3', extent: 'parent', data: { title: 'Concentrator Condensate', subtitle: 'Solvent Recovery', hoverDetails: '<b>Type:</b> Condensed overheads<br/><b>Disposition:</b> Segregate from filtration mother liquor and route after composition confirmation.', typeClass: 'node-waste' } },
+  { id: 'w_ml3', type: 'custom', position: { x: 950, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Sodium-Salt Mother Liquor', subtitle: 'Waste / Recovery', hoverDetails: '<b>Type:</b> Filtration mother liquor<br/><b>Disposition:</b> Route after solvent and residual-API characterization.', typeClass: 'node-waste' } },
+  { id: 'b3_out', type: 'custom', position: { x: 1200, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Isolated Esomeprazole Sodium', subtitle: 'Controlled Solid Handoff', hoverDetails: '<b>Type:</b> Isolated intermediate<br/><b>Handoff:</b> Transfer by reconciled mass, assay, water/volatile basis, identity, and residual-solvent data to Block 4. <sup>[1, 3]</sup>', typeClass: 'node-product' } },
 
-  { id: 'v104c', type: 'custom', position: { x: 30, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Acetic Acid', subtitle: 'pH Adjust', hoverDetails: '<b>Tag:</b> V-104C<br/><b>Type:</b> Acid dosing tank<br/><b>How:</b> Acetic acid lowers pH to re-protonate the anion back to a neutral, oil-soluble free base; fed through FCV-103 with nonlinear (log-pH) tuning so it can&rsquo;t overshoot the target and degrade the acid-sensitive API.<br/><b>Spec:</b> drives to pH 7.5–8.5 <sup>[3]</sup>', typeClass: 'node-input' } },
-  { id: 'v103', type: 'custom', position: { x: 270, y: 450 }, parentId: 'b3', extent: 'parent', data: { title: 'Secondary Extractor', subtitle: 'pH Adjustment Vessel', hoverDetails: '<b>Tag:</b> V-103 <sup>[4]</sup><br/><b>Type:</b> Hastelloy C-276 stirred tank (resists the acid)<br/><b>How:</b> AIC-101 reads AT-101, an inline pH probe in a recirculation loop, and modulates FCV-103 acid flow to hold the setpoint; the freed neutral base then partitions up into the added MIBK. <sup>[7]</sup><br/><b>Spec:</b> pH 7.5–8.5 setpoint', typeClass: 'node-unitOp' } },
+  // Block 4 Nodes — direct aqueous sodium-to-magnesium conversion
+  { id: 'v_water4', type: 'custom', position: { x: 40, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Purified Water', subtitle: 'Reconstitution Medium', hoverDetails: '<b>Type:</b> Qualified water supply<br/><b>Duty:</b> Reconstitute the isolated sodium salt for the aqueous magnesium precipitation step.', typeClass: 'node-input' } },
+  { id: 'r104', type: 'custom', position: { x: 290, y: 220 }, parentId: 'b4', extent: 'parent', data: { title: 'Dissolution / Precipitation Reactor', subtitle: 'Sodium Salt → Magnesium Salt', hoverDetails: '<b>Tag:</b> R-104<br/><b>Type:</b> Agitated, temperature-controlled aqueous reactor<br/><b>Duty:</b> Dissolve/reconstitute the sodium salt, dose magnesium chloride, precipitate, and age the magnesium salt. Phase-form claims remain provisional until representative solid-state testing. <sup>[4]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'v_mgcl2', type: 'custom', position: { x: 290, y: 60 }, parentId: 'b4', extent: 'parent', data: { title: 'Magnesium Chloride', subtitle: 'Aqueous Dose', hoverDetails: '<b>Type:</b> MgCl&#8322;&middot;6H&#8322;O solution preparation/dosing<br/><b>Duty:</b> Supply magnesium ion to precipitate the magnesium salt. Charge is calculated on a defined assay and hydration basis. <sup>[4]</sup>', typeClass: 'node-input' } },
+  { id: 'f104', type: 'custom', position: { x: 540, y: 220 }, parentId: 'b4', extent: 'parent', data: { title: 'Filter / Water Wash', subtitle: 'Wet-Cake Isolation', hoverDetails: '<b>Tag:</b> F-104<br/><b>Type:</b> Contained filter or ANF<br/><b>Duty:</b> Isolate the precipitated magnesium salt and water-wash the cake before its controlled wet transfer.', typeClass: 'node-unitOp' } },
+  { id: 'w_ml4', type: 'custom', position: { x: 540, y: 430 }, parentId: 'b4', extent: 'parent', data: { title: 'Aqueous Filtrate / Washes', subtitle: 'Effluent Treatment', hoverDetails: '<b>Type:</b> Mother liquor and wash filtrate<br/><b>Disposition:</b> Characterize for salts and residual API before site treatment.', typeClass: 'node-waste' } },
+  { id: 'b4_out', type: 'custom', position: { x: 730, y: 220 }, parentId: 'b4', extent: 'parent', data: { title: 'Washed Magnesium-Salt Wet Cake', subtitle: 'Provisional Solid Form', hoverDetails: '<b>Type:</b> Controlled wet-cake handoff<br/><b>Handoff:</b> Record wet mass, solids/assay basis, residual salts, and representative solid-state result. Do not assign trihydrate solely from route history. <sup>[4, 5]</sup>', typeClass: 'node-product' } },
 
-  { id: 'v104b', type: 'custom', position: { x: 30, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'MIBK Solvent', subtitle: 'Extraction', hoverDetails: '<b>Tag:</b> V-104B<br/><b>Type:</b> Solvent dosing tank<br/><b>How:</b> MIBK (density ~0.80, so it floats) is charged first as a wash to pull trace organics off the aqueous extract, then a second time to dissolve the re-protonated free base out of the water.<br/><b>Spec:</b> 18 L MIBK total (9 L wash + 9 L extract) <sup>[3]</sup>', typeClass: 'node-input' } },
-  { id: 'w_aq', type: 'custom', position: { x: 530, y: 650 }, parentId: 'b3', extent: 'parent', data: { title: 'Aqueous Waste', subtitle: 'ETP', hoverDetails: '<b>Type:</b> Spent aqueous phase<br/><b>How:</b> Once the base has moved into the MIBK, the bottom aqueous layer — now ammonium acetate — is drained to effluent treatment.<br/><b>Route:</b> &rarr; ETP <sup>[8]</sup>', typeClass: 'node-waste' } },
-  { id: 'b3_out', type: 'custom', position: { x: 530, y: 550 }, parentId: 'b3', extent: 'parent', data: { title: 'Purified Free Base', subtitle: 'In MIBK', hoverDetails: '<b>Type:</b> Purified organic stream &rarr; R-104<br/><b>How:</b> The top MIBK layer carrying the neutral free base is drawn off above the phase boundary and sent to salt formation.<br/><b>Spec:</b> esomeprazole free base in 9 L MIBK <sup>[3, 10]</sup>', typeClass: 'node-product' } },
-
-  // Block 4 Nodes
-  { id: 'v105a', type: 'custom', position: { x: 30, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Potassium Source', subtitle: 'KOMe', hoverDetails: '<b>Tag:</b> V-105A <sup>[4]</sup><br/><b>Type:</b> Alkaline (methanolic) dosing tank<br/><b>How:</b> KOMe deprotonates the free base to a potassium salt — an intermediate that crystallizes cleanly and rejects impurities before the final magnesium exchange (a chemical purification step).<br/><b>Spec:</b> methanolic KOMe <sup>[3]</sup>', typeClass: 'node-input' } },
-  { id: 'r104a', type: 'custom', position: { x: 270, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Salt Reactor Phase 1', subtitle: 'Potassium Intermediate', hoverDetails: '<b>Tag:</b> R-104 (Pathway B, Phase 1) <sup>[4]</sup><br/><b>Type:</b> Jacketed GLR stirred-tank reactor<br/><b>How:</b> TIC-104 (TT-104 RTD &rarr; TCV-104 jacket valve) holds a mild 35°C while seed crystals are added and the mass is stirred 12–14 hr, growing pure K-salt slowly — mild heat prevents a premature messy precipitation. <sup>[7]</sup><br/><b>Spec:</b> 35°C, 12–14 hr aging <sup>[3]</sup>', typeClass: 'node-unitOp' } },
-  { id: 'f102', type: 'custom', position: { x: 530, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Nutsche Filter', subtitle: 'Intermediate Isolation', hoverDetails: '<b>Tag:</b> F-102 <sup>[5]</sup><br/><b>Type:</b> Agitated Nutsche Filter (ANF)<br/><b>How:</b> Vacuum pulls the impurity-laden mother liquor down through the filter mesh; the built-in agitator smooths the cake to stop channeling, then a methanol/toluene wash rinses the isolated K-salt.<br/><b>Spec:</b> isolates pure K-salt cake', typeClass: 'node-unitOp' } },
-  { id: 'w_ml', type: 'custom', position: { x: 790, y: 100 }, parentId: 'b4', extent: 'parent', data: { title: 'Mother Liquor Waste', subtitle: 'ETP', hoverDetails: '<b>Type:</b> Filtrate mother liquor<br/><b>How:</b> Carries the rejected free-base impurities away from the pure crystalline intermediate.<br/><b>Route:</b> &rarr; ETP', typeClass: 'node-waste' } },
-
-  { id: 'v105c', type: 'custom', position: { x: 270, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'MgSO4 Dosing', subtitle: 'Hopper', hoverDetails: '<b>Tag:</b> V-105C <sup>[4]</sup><br/><b>Type:</b> Solid dosing hopper<br/><b>How:</b> WIC-104 load cells weigh the hopper and gate a rotary airlock so MgSO&#8324;·7H&#8322;O is fed slowly over 3 hr, keeping the ion-exchange rate controlled. <sup>[7]</sup><br/><b>Spec:</b> 3 hr gravimetric dose <sup>[3]</sup>', typeClass: 'node-input' } },
-  { id: 'r104b', type: 'custom', position: { x: 530, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'Salt Reactor Phase 2', subtitle: 'Magnesium Exchange', hoverDetails: '<b>Tag:</b> R-104 (Ion-Exchange Phase) <sup>[4]</sup><br/><b>Type:</b> Vacuum-rated GLR stirred tank <sup>[5]</sup><br/><b>How:</b> Dosed Mg&sup2;&#8314; displaces potassium; insoluble esomeprazole magnesium precipitates while soluble K&#8322;SO&#8324; stays dissolved. PIC-104 (PT-104 &rarr; PCV-104 bleed, VP-101 pump, E-104 condenser) can pull vacuum for low-temp solvent stripping; 30–70 min elutriation washes byproduct out. <sup>[6]</sup><br/><b>Spec:</b> Mg-for-K exchange', typeClass: 'node-unitOp' } },
-
-  { id: 'w_k2so4', type: 'custom', position: { x: 790, y: 450 }, parentId: 'b4', extent: 'parent', data: { title: 'Aqueous Waste', subtitle: 'K2SO4 Byproduct', hoverDetails: '<b>Type:</b> Dissolved byproduct stream<br/><b>How:</b> The soluble potassium sulfate stays in the liquor and is elutriated (washed) away from the solid API.<br/><b>Route:</b> &rarr; ETP', typeClass: 'node-waste' } },
-  { id: 'b4_out', type: 'custom', position: { x: 790, y: 300 }, parentId: 'b4', extent: 'parent', data: { title: 'API Slurry', subtitle: 'Esomeprazole Mg', hoverDetails: '<b>Type:</b> Crystallization-solvent slurry &rarr; CR-105<br/><b>How:</b> The high-density solid esomeprazole magnesium, suspended in solvent, is moved by a diaphragm slurry pump to final crystallization.<br/><b>Spec:</b> solid esomeprazole magnesium in solvent <sup>[3]</sup>', typeClass: 'node-product' } },
-
-  // Block 5 Nodes
-  { id: 'v106a', type: 'custom', position: { x: 30, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'Anti-Solvent', subtitle: 'Acetone', hoverDetails: '<b>Tag:</b> V-106A <sup>[4]</sup><br/><b>Type:</b> Anti-solvent dosing tank<br/><b>How:</b> Acetone is dosed in slowly to lower the API&rsquo;s solubility and push the batch into supersaturation, forcing more product out of solution as crystals.<br/><b>Spec:</b> acetone anti-solvent', typeClass: 'node-input' } },
-  { id: 'cr105', type: 'custom', position: { x: 270, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'Final Crystallizer', subtitle: 'Controlled Cooling', hoverDetails: '<b>Tag:</b> CR-105 <sup>[3]</sup><br/><b>Type:</b> GLR cooling crystallizer, hydrofoil agitator<br/><b>How:</b> TIC-105 cascade ramps the jacket linearly 30°C &rarr; 5°C over 10 hr; the slow curve grows large, pure, filterable crystals (sudden cooling would flash a mass of tiny unfilterable ones). The gentle hydrofoil suspends them without shear-crushing. <sup>[4]</sup><br/><b>Spec:</b> 30°C &rarr; 5°C over 10 hr', typeClass: 'node-unitOp' } },
-
-  { id: 'v106b', type: 'custom', position: { x: 270, y: 300 }, parentId: 'b5', extent: 'parent', data: { title: 'Wash Solvent', subtitle: 'Chilled Acetone', hoverDetails: '<b>Tag:</b> V-106B<br/><b>Type:</b> Wash-solvent dosing tank<br/><b>How:</b> Chilled acetone is sprayed onto the filter cake to rinse surface impurities away without redissolving the cold product crystals.<br/><b>Spec:</b> chilled acetone', typeClass: 'node-input' } },
-  { id: 'f105', type: 'custom', position: { x: 530, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'ANFD', subtitle: 'Filter & Dryer', hoverDetails: '<b>Tag:</b> F-105 <sup>[4]</sup><br/><b>Type:</b> Hastelloy C-22 Agitated Nutsche Filter Dryer<br/><b>How:</b> One sealed unit filters (vacuum through the mesh), washes, then dries — PIC-105 holds vacuum while TIC-106 gives mild jacket heat capped at 40°C, so organic solvent leaves but the crystal-lattice trihydrate water stays. Containment shields operators from the potent API dust. <sup>[3]</sup><br/><b>Spec:</b> dry ≤ 40°C, KF-verified', typeClass: 'node-unitOp' } },
-
-  { id: 'w_ml2', type: 'custom', position: { x: 790, y: 300 }, parentId: 'b5', extent: 'parent', data: { title: 'Mother Liquor Waste', subtitle: 'SRU', hoverDetails: '<b>Type:</b> Filtrate mother liquor<br/><b>How:</b> The liquid pulled through the filter is routed off for acetone recovery and reuse.<br/><b>Route:</b> &rarr; SRU', typeClass: 'node-waste' } },
-  { id: 'm105', type: 'custom', position: { x: 790, y: 100 }, parentId: 'b5', extent: 'parent', data: { title: 'Conical Mill', subtitle: 'Particle Sizing', hoverDetails: '<b>Tag:</b> M-105<br/><b>Type:</b> Conical mill &amp; sieve<br/><b>How:</b> The dried cake drops down an enclosed chute and is gently delumped through a screen to the fine particle size needed for bioavailability — no operator dust exposure.<br/><b>Spec:</b> d90 &lt; 15 µm <sup>[8]</sup>', typeClass: 'node-unitOp' } },
-
-  { id: 'out', type: 'custom', position: { x: 790, y: 220 }, parentId: 'b5', extent: 'parent', data: { title: 'Final API', subtitle: 'Esomeprazole Mg Trihydrate', hoverDetails: '<b>Type:</b> Final packaged API<br/><b>How:</b> Milled powder drops into HDPE drums with double anti-static LDPE liners, then goes to quarantine for QA/QC release before tableting.<br/><b>Spec:</b> esomeprazole magnesium trihydrate <sup>[3]</sup>', typeClass: 'node-product' } },
+  // Block 5 Nodes — no separate acetone crystallizer
+  { id: 'qc105', type: 'custom', position: { x: 40, y: 180 }, parentId: 'b5', extent: 'parent', data: { title: 'Representative Solid-State Check', subtitle: 'Identity / Hydrate Disposition', hoverDetails: '<b>Type:</b> Representative sampling and laboratory disposition<br/><b>Duty:</b> Compare an appropriately prepared sample with the qualified solid-form reference before final release claims. <sup>[5]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'v_water5', type: 'custom', position: { x: 290, y: 40 }, parentId: 'b5', extent: 'parent', data: { title: 'Purified Water', subtitle: 'Optional Reslurry', hoverDetails: '<b>Type:</b> Qualified water supply<br/><b>Duty:</b> Used only when purge or solid-form data require water elutriation/reslurry; this is not an automatic fixed wash. <sup>[5]</sup>', typeClass: 'node-input' } },
+  { id: 'f105', type: 'custom', position: { x: 290, y: 180 }, parentId: 'b5', extent: 'parent', data: { title: 'ANFD', subtitle: 'Optional Reslurry / Refilter / Vacuum Dry', hoverDetails: '<b>Tag:</b> F-105<br/><b>Type:</b> Contained agitated nutsche filter dryer<br/><b>Duty:</b> If required, water-reslurry and refilter the wet cake; then vacuum-dry under a qualified cycle that preserves the accepted solid form. <sup>[5]</sup>', typeClass: 'node-unitOp' } },
+  { id: 'w_ml2', type: 'custom', position: { x: 290, y: 380 }, parentId: 'b5', extent: 'parent', data: { title: 'Filtrate / Drying Condensate', subtitle: 'Waste / Recovery', hoverDetails: '<b>Type:</b> Optional reslurry filtrate plus segregated dryer condensate<br/><b>Disposition:</b> Route by measured composition.', typeClass: 'node-waste' } },
+  { id: 'm105', type: 'custom', position: { x: 560, y: 180 }, parentId: 'b5', extent: 'parent', data: { title: 'Mill / Sieve', subtitle: 'Qualified Particle Sizing', hoverDetails: '<b>Tag:</b> M-105<br/><b>Type:</b> Contained delumping or milling system<br/><b>Duty:</b> Condition the dried material to the approved particle-size specification without changing its accepted solid form.', typeClass: 'node-unitOp' } },
+  { id: 'out', type: 'custom', position: { x: 750, y: 180 }, parentId: 'b5', extent: 'parent', data: { title: 'Released Esomeprazole Magnesium API', subtitle: 'Test / Package', hoverDetails: '<b>Type:</b> Final packaged API<br/><b>Release:</b> Identity, assay, water/solid form, residual solvents, impurities, and particle size are controlled by the approved specification.', typeClass: 'node-product' } },
 ];
 
 const initialEdges = [
@@ -136,41 +188,46 @@ const initialEdges = [
 
   // B3
   { id: 'e-b2-ex101', source: 'b2_out', target: 'ex101', type: 'step', label: 'Crude in toluene' },
-  { id: 'e-v104a-ex101', source: 'v104a', target: 'ex101', type: 'step', label: 'Aq. NH₃ 60 L (12.5%)' },
-  { id: 'e-ex101-w_tol', source: 'ex101', target: 'w_tol', type: 'step', className: 'waste-edge', label: 'Waste toluene + Ti catalyst' },
-
-  { id: 'e-ex101-v103', source: 'ex101', target: 'v103', type: 'step', label: 'Aqueous anion extract · LIC-101' },
-  { id: 'e-v104c-v103', source: 'v104c', target: 'v103', type: 'step', label: 'Acetic acid · FCV-103 (AIC-101)' },
-  { id: 'e-v104b-v103', source: 'v104b', target: 'v103', type: 'step', label: 'MIBK 18 L' },
-
-  { id: 'e-v103-w_aq', source: 'v103', target: 'w_aq', type: 'step', className: 'waste-edge', label: 'Aq. ammonium acetate' },
-  { id: 'e-v103-b3', source: 'v103', target: 'b3_out', type: 'step', label: 'Free base in 9 L MIBK' },
+  { id: 'e-v104a-ex101', source: 'v104a', target: 'ex101', type: 'step', label: 'Aqueous ammonia contacts' },
+  { id: 'e-ex101-w_tol', source: 'ex101', target: 'w_tol', type: 'step', className: 'waste-edge', label: 'Depleted organic raffinate' },
+  { id: 'e-ex101-aq', source: 'ex101', target: 'aq_hold', type: 'step', label: 'Combined aqueous extracts' },
+  { id: 'e-aq-ex102', source: 'aq_hold', target: 'ex102', type: 'step', label: 'Product-bearing aqueous phase' },
+  { id: 'e-v104c-ex102', source: 'v104c', target: 'ex102', type: 'step', label: 'Acetic acid to endpoint' },
+  { id: 'e-v104b-ex102', source: 'v104b', target: 'ex102', type: 'step', label: 'MIBK extraction contacts' },
+  { id: 'e-ex102-w_aq', source: 'ex102', target: 'w_aq', type: 'step', className: 'waste-edge', label: 'Aqueous raffinate' },
+  { id: 'e-ex102-org', source: 'ex102', target: 'org_hold', type: 'step', label: 'Combined MIBK extracts' },
+  { id: 'e-org-r103', source: 'org_hold', target: 'r103', type: 'step', label: 'Free-base solution' },
+  { id: 'e-naoh-r103', source: 'v_naoh', target: 'r103', type: 'step', label: 'Qualified NaOH solution' },
+  { id: 'e-acn-r103', source: 'v_acn', target: 'r103', type: 'step', label: 'Acetonitrile' },
+  { id: 'e-r103-cond', source: 'r103', target: 'w_cond', type: 'step', className: 'waste-edge', label: 'Concentrator condensate' },
+  { id: 'e-r103-f103', source: 'r103', target: 'f103', type: 'step', label: 'Sodium-salt slurry' },
+  { id: 'e-f103-wml3', source: 'f103', target: 'w_ml3', type: 'step', className: 'waste-edge', label: 'Filtration mother liquor' },
+  { id: 'e-f103-b3', source: 'f103', target: 'b3_out', type: 'step', label: 'Isolated sodium salt' },
 
   // B4
-  { id: 'e-b3-r104a', source: 'b3_out', target: 'r104a', type: 'step', label: 'Free base / MIBK' },
-  { id: 'e-v105a-r104a', source: 'v105a', target: 'r104a', type: 'step', label: 'KOMe (methanolic) · TIC-104' },
-
-  { id: 'e-r104a-f102', source: 'r104a', target: 'f102', type: 'step', label: 'K-salt slurry (14 hr age)' },
-  { id: 'e-f102-w_ml', source: 'f102', target: 'w_ml', type: 'step', className: 'waste-edge', label: 'Impurity mother liquor' },
-
-  { id: 'e-f102-r104b', source: 'f102', target: 'r104b', type: 'step', label: 'Pure K-salt cake' },
-  { id: 'e-v105c-r104b', source: 'v105c', target: 'r104b', type: 'step', label: 'MgSO₄·7H₂O · WIC-104 (3 hr)' },
-
-  { id: 'e-r104b-w_k2so4', source: 'r104b', target: 'w_k2so4', type: 'step', className: 'waste-edge', label: 'K₂SO₄ liquor · elutriation' },
-  { id: 'e-r104b-b4', source: 'r104b', target: 'b4_out', type: 'step', label: 'Esomeprazole-Mg slurry · PIC-104' },
+  { id: 'e-b3-r104', source: 'b3_out', target: 'r104', type: 'step', label: 'Reconciled sodium-salt solid' },
+  { id: 'e-water4-r104', source: 'v_water4', target: 'r104', type: 'step', label: 'Purified water' },
+  { id: 'e-mgcl2-r104', source: 'v_mgcl2', target: 'r104', type: 'step', label: 'Aqueous MgCl₂·6H₂O dose' },
+  { id: 'e-r104-f104', source: 'r104', target: 'f104', type: 'step', label: 'Aged magnesium-salt slurry' },
+  { id: 'e-f104-wml4', source: 'f104', target: 'w_ml4', type: 'step', className: 'waste-edge', label: 'Mother liquor + water washes' },
+  { id: 'e-f104-b4', source: 'f104', target: 'b4_out', type: 'step', label: 'Washed wet cake' },
 
   // B5
-  { id: 'e-b4-cr105', source: 'b4_out', target: 'cr105', type: 'step', label: 'API slurry' },
-  { id: 'e-v106a-cr105', source: 'v106a', target: 'cr105', type: 'step', label: 'Acetone (anti-solvent) · TIC-105' },
-
-  { id: 'e-cr105-f105', source: 'cr105', target: 'f105', type: 'step', label: 'Cold crystal slurry (5°C)' },
-  { id: 'e-v106b-f105', source: 'v106b', target: 'f105', type: 'step', label: 'Chilled acetone wash' },
-
-  { id: 'e-f105-w_ml2', source: 'f105', target: 'w_ml2', type: 'step', className: 'waste-edge', label: 'Mother liquor → SRU' },
-  { id: 'e-f105-m105', source: 'f105', target: 'm105', type: 'step', label: 'Dry API cake · PIC-105 (≤40°C)' },
-
-  { id: 'e-m105-out', source: 'm105', target: 'out', type: 'step', label: 'Milled API · d90 < 15 µm' },
+  { id: 'e-b4-qc105', source: 'b4_out', target: 'qc105', type: 'step', label: 'Representative wet cake' },
+  { id: 'e-qc105-f105', source: 'qc105', target: 'f105', type: 'step', label: 'Dispositioned wet cake' },
+  { id: 'e-water5-f105', source: 'v_water5', target: 'f105', type: 'step', label: 'Optional water reslurry' },
+  { id: 'e-f105-w_ml2', source: 'f105', target: 'w_ml2', type: 'step', className: 'waste-edge', label: 'Filtrate / drying condensate' },
+  { id: 'e-f105-m105', source: 'f105', target: 'm105', type: 'step', label: 'Qualified dry cake' },
+  { id: 'e-m105-out', source: 'm105', target: 'out', type: 'step', label: 'Milled / sieved API' },
 ];
+
+// Use a consistent rounded orthogonal route for every stream. This keeps long
+// utility/feed runs readable while preserving the editable endpoints.
+const routedEdges = initialEdges.map((edge) => ({
+  ...edge,
+  type: 'smoothstep',
+  pathOptions: { borderRadius: 18, offset: 22 },
+}));
 
 // Approximate per-batch stream / material balance (scoping figures — see note).
 // Liquid volumes converted at nominal densities: toluene 0.87, MIBK 0.80, aq. NH3 0.95 kg/L.
@@ -191,38 +248,41 @@ const massBalance = [
     { dir: 'in',    stream: 'Cumene hydroperoxide (CHP)',  comp: 'C9H12O2',         amt: '3.30 kg / ~21.7 mol' },
     { dir: 'out',   stream: 'Crude esomeprazole → B3',     comp: 'product + cumyl alcohol + unreacted + Ti + toluene', amt: '≈ 35.9 kg (API ~6.5 kg est.)' },
   ]},
-  { block: 'Block 3 — Extraction & Phase Separation', rows: [
-    { dir: 'in',    stream: 'Crude stream (from B2)',      comp: 'crude in toluene', amt: '≈ 35.9 kg' },
-    { dir: 'in',    stream: 'Aq. ammonia 12.5%',           comp: 'NH3 / H2O',       amt: '60 L ≈ 57 kg (NH3 ~7.1 kg)' },
-    { dir: 'in',    stream: 'MIBK (wash + extract)',       comp: 'C6H12O',          amt: '18 L ≈ 14.4 kg' },
-    { dir: 'in',    stream: 'Acetic acid (pH adjust)',     comp: 'CH3COOH',         amt: 'to pH 7.5–8.5 (est.)' },
-    { dir: 'out',   stream: 'Free base in MIBK → B4',      comp: 'esomeprazole free base + 9 L MIBK', amt: '≈ 13.7 kg (base ~6.5 kg est.)' },
-    { dir: 'waste', stream: 'Waste toluene + Ti → SRU',    comp: 'toluene + spent catalyst', amt: '≈ 21.7 kg' },
-    { dir: 'waste', stream: 'Aq. ammonium acetate → ETP',  comp: 'CH3COONH4 / H2O', amt: '≈ 57 kg' },
+  { block: 'Block 3 — Extraction, Sodium-Salt Formation & Isolation', rows: [
+    { dir: 'in',    stream: 'Crude stream (from B2)',      comp: 'crude sulfoxide in toluene', amt: 'Batch record / transfer record' },
+    { dir: 'in',    stream: 'Aqueous ammonia',             comp: 'NH3 / H2O',       amt: 'Batch record' },
+    { dir: 'in',    stream: 'MIBK and acetic acid',        comp: 'extraction solvent / acidification feed', amt: 'Batch record' },
+    { dir: 'in',    stream: 'NaOH solution and acetonitrile', comp: 'salt-forming reagent / solvent', amt: 'CoA-corrected batch record' },
+    { dir: 'out',   stream: 'Isolated esomeprazole sodium → B4', comp: 'solid sodium salt', amt: 'Reconciled assay-basis handoff' },
+    { dir: 'waste', stream: 'Organic and aqueous raffinates', comp: 'spent process phases', amt: 'Measured / reconciled' },
+    { dir: 'waste', stream: 'Condensate and mother liquor', comp: 'process solvents + residuals', amt: 'Measured / reconciled' },
   ]},
-  { block: 'Block 4 — API Salt Formation (Pathway B)', rows: [
-    { dir: 'in',    stream: 'Free base / MIBK (from B3)',  comp: 'free base in MIBK', amt: '≈ 13.7 kg' },
-    { dir: 'in',    stream: 'KOMe (methanolic)',           comp: 'CH3OK / MeOH',    amt: 'est.' },
-    { dir: 'in',    stream: 'MgSO4·7H2O',                  comp: 'MgSO4·7H2O',      amt: '~2.3 kg (est., ~0.5 eq Mg)' },
-    { dir: 'out',   stream: 'Esomeprazole-Mg slurry → B5', comp: 'solid Mg salt in solvent', amt: 'API ~6.5 kg (est.)' },
-    { dir: 'waste', stream: 'Impurity mother liquor → ETP', comp: 'MeOH/toluene + impurities', amt: 'est.' },
-    { dir: 'waste', stream: 'K2SO4 liquor → ETP',          comp: 'K2SO4 (aq.)',     amt: 'est.' },
+  { block: 'Block 4 — Aqueous Magnesium-Salt Precipitation', rows: [
+    { dir: 'in',    stream: 'Isolated sodium salt (from B3)', comp: 'esomeprazole sodium', amt: 'Assay-basis transfer record' },
+    { dir: 'in',    stream: 'Purified water',              comp: 'H2O',             amt: 'Batch record' },
+    { dir: 'in',    stream: 'Magnesium chloride hexahydrate', comp: 'MgCl2·6H2O',   amt: 'Defined assay/hydration basis' },
+    { dir: 'out',   stream: 'Washed Mg-salt wet cake → B5', comp: 'provisional magnesium-salt solid form', amt: 'Wet mass + solids/assay basis' },
+    { dir: 'waste', stream: 'Aqueous filtrate and washes', comp: 'water + dissolved salts + residual API', amt: 'Measured / reconciled' },
   ]},
-  { block: 'Block 5 — Crystallization & Isolation', rows: [
-    { dir: 'in',    stream: 'API slurry (from B4)',        comp: 'Mg salt in solvent', amt: 'API ~6.5 kg (est.)' },
-    { dir: 'in',    stream: 'Acetone (anti-solvent + wash)', comp: '(CH3)2CO',      amt: 'est.' },
-    { dir: 'out',   stream: 'Final API (product)',         comp: 'esomeprazole Mg trihydrate', amt: '≈ 6–7 kg (est., ~90% overall)' },
-    { dir: 'waste', stream: 'Mother liquor → SRU',         comp: 'acetone filtrate', amt: 'est.' },
+  { block: 'Block 5 — Wet-Cake Conditioning, Drying & Packaging', rows: [
+    { dir: 'in',    stream: 'Washed wet cake (from B4)',   comp: 'esomeprazole magnesium wet cake', amt: 'Controlled transfer record' },
+    { dir: 'in',    stream: 'Purified water (optional)',   comp: 'H2O',             amt: 'Only if purge/form data require reslurry' },
+    { dir: 'out',   stream: 'Released API',                comp: 'specification-compliant esomeprazole magnesium', amt: 'Final release result' },
+    { dir: 'waste', stream: 'Optional filtrate / drying condensate', comp: 'water + removed volatiles', amt: 'Measured / reconciled' },
   ]},
 ];
 
 export default function App() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(routedEdges);
   const [showRefs, setShowRefs] = useState(false);
   const [showBalance, setShowBalance] = useState(false);
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  const onReconnect = useCallback(
+    (oldEdge, newConnection) => setEdges((eds) => reconnectEdge(oldEdge, newConnection, eds)),
+    [setEdges],
+  );
 
   return (
     <>
@@ -240,16 +300,16 @@ export default function App() {
             <strong>Primary Literature</strong>
             <ul>
               <li>[1] Cotton, H., et al. (2000). "Asymmetric synthesis of esomeprazole." <i>Tetrahedron: Asymmetry</i>, 11(18), 3819-3825.</li>
-              <li>[2] Song, et al. (2014) & Li, et al. (2014). Reaction scale-up and optimization parameters.</li>
+              <li>[2] Reserved: no secondary scale-up source is used to define the revised topology.</li>
             </ul>
             <strong>Patents</strong>
             <ul>
-              <li>[3] US Patent 6,174,548 & US Patent 6,369,085 (AstraZeneca). Salt formation, extraction, & crystallization.</li>
+              <li>[3] US Patent 5,948,789, Example 11. Asymmetric oxidation, extraction, and isolated esomeprazole sodium.</li>
+              <li>[4] US Patent 8,106,210 B2, Reference Example 2 (direct pre-grant: US 2010/0227890 A1). Aqueous magnesium-chloride precipitation.</li>
+              <li>[5] US Patent 6,369,085 B1, Example 7. Water elutriation and vacuum-drying precedent for the trihydrate.</li>
             </ul>
             <strong>Engineering Design & Handbooks</strong>
             <ul>
-              <li>[4] Turton, R., et al. (2018). <i>Analysis, Synthesis, and Design of Chemical Processes</i>.</li>
-              <li>[5] Levin, M. (Ed.). <i>Pharmaceutical Process Scale-Up</i>.</li>
               <li>[6] Green, D. W. <i>Perry's Chemical Engineers' Handbook</i>.</li>
               <li>[7] Lipták, B. G. <i>Instrument Engineers' Handbook</i>.</li>
               <li>[8] <i>Active Pharmaceutical Ingredients: Development, Manufacturing, and Regulation</i>.</li>
@@ -288,10 +348,9 @@ export default function App() {
               </div>
             ))}
             <div className="balance-note">
-              Approximate per-batch scoping figures. Feed masses from Refs [1][3][10];
-              liquid volumes converted at nominal densities (toluene 0.87, MIBK 0.80,
-              aq. NH₃ 0.95 kg/L). Values marked (est.) are placeholders pending the full
-              balance — solvent recycles, yields and losses not yet closed.
+              Blocks 3–5 are shown on a unit-operation basis only. Their quantities must
+              come from reconciled transfer records, qualified material CoAs, and approved
+              batch instructions; the PFD does not establish equipment sizing or operating setpoints.
             </div>
           </div>
         )}
@@ -303,7 +362,10 @@ export default function App() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onReconnect={onReconnect}
         nodeTypes={nodeTypes}
+        edgesReconnectable
+        edgesFocusable
         fitView
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.1}

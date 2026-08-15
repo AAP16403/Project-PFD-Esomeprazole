@@ -60,18 +60,34 @@ body {
 
 .react-flow__node-group {
   background-color: transparent !important;
-  border: 2px dashed #757575 !important;
+  border: 2px dotted #757575 !important;
   border-radius: 0px !important;
+  overflow: visible !important;
+  cursor: move;
 }
 
-.react-flow__node-group .react-flow__group-label {
+.group-node-label {
+  position: absolute;
+  top: -27px;
+  left: -2px;
   font-family: Arial, sans-serif;
   font-size: 14px;
   font-weight: bold;
   color: #000;
   background: #fff;
-  padding: 2px 5px;
+  padding: 3px 7px;
   border: 1px solid #757575;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.react-flow__node-group.selected {
+  border-color: #1565c0 !important;
+}
+
+.react-flow__resize-control.handle {
+  background: #fff;
+  border: 2px solid #1565c0;
 }
 
 .react-flow__handle {
@@ -82,8 +98,14 @@ body {
 }
 
 .react-flow__edge-path {
-  stroke-width: 2;
+  stroke-width: 1.6;
   stroke: #000000;
+  cursor: pointer;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3;
 }
 
 .react-flow__edge.waste-edge .react-flow__edge-path {
@@ -96,7 +118,7 @@ body {
 }
 .react-flow__edge-text {
   fill: #000000;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: bold;
 }
 
@@ -307,4 +329,3 @@ header p {
   font-size: 10.5px;
   line-height: 1.35;
 }
-
