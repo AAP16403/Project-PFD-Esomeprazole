@@ -91,13 +91,13 @@ const initialNodes = [
   { id: 'b5', type: 'group', position: { x: 4900, y: 150 }, style: { width: 950, height: 550 }, data: { label: 'Block 5: Wet-Cake Conditioning, Drying & Packaging' } },
 
   // Block 1 Nodes
-  { id: 'v101a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solvent Vessel', subtitle: 'Toluene', hoverDetails: '<b>Tag:</b> V-101A <sup>[4]</sup><br/><b>Type:</b> Toluene charge vessel &rarr; R-101<br/><b>How:</b> FT-101 Coriolis meter totalizes mass flow to the DCS, which snaps FCV-101 shut the instant 25 L is reached — the charge is exact no matter how the pump drifts.<br/><b>Spec:</b> 25 L toluene (reaction solvent) <sup>[7, 10]</sup>', typeClass: 'node-input' } },
-  { id: 'v101b', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solid Hopper', subtitle: 'Pyrmetazole', hoverDetails: '<b>Tag:</b> V-101B <sup>[4]</sup><br/><b>Type:</b> Solid charge hopper<br/><b>How:</b> A rotary airlock turns the solid in through sealed pockets, metering it into the stirred toluene without ever opening the vessel to air (keeps the N&#8322; blanket intact).<br/><b>Spec:</b> 6.2 kg pyrmetazole (18.8 mol) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
+  { id: 'v101a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solvent Vessel', subtitle: 'Toluene', hoverDetails: '<b>Tag:</b> V-101A<br/><b>Type:</b> Toluene charge vessel<br/><b>Duty:</b> Hold and transfer the qualified reaction solvent to the complexation reactor. Charge quantity and metering basis are controlled by the approved batch record.', typeClass: 'node-input' } },
+  { id: 'v101b', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Solid Hopper', subtitle: 'Pyrmetazole', hoverDetails: '<b>Tag:</b> V-101B<br/><b>Type:</b> Solid charge hopper<br/><b>Duty:</b> Charge qualified pyrmetazole substrate into the inerted solvent/reactor system. Charge mass and assay are taken from the material CoA and batch record.', typeClass: 'node-input' } },
   { id: 'amine_in', type: 'custom', position: { x: 450, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Base Supply', subtitle: 'Amine', hoverDetails: '<b>Type:</b> DIPEA base charge (metered liquid)<br/><b>How:</b> The tertiary amine mops up trace acid so the titanium&ndash;tartrate complex can&rsquo;t acid-decompose, and buffers the batch pH steady.<br/><b>Spec:</b> 0.72 kg DIPEA ((iPr)&#8322;NEt) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
   { id: 'det_in', type: 'custom', position: { x: 650, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Ligand Supply', subtitle: '(S,S)-DET', hoverDetails: '<b>Type:</b> Chiral ligand charge via XV-102<br/><b>How:</b> XV-102 opens once at temperature; the tartrate chelates titanium and its (S,S) handedness is what forces the S-sulfoxide downstream — this is the step that makes the drug &ldquo;eso&rdquo;.<br/><b>Spec:</b> 2.35 kg (11.4 mol) (S,S)-diethyl tartrate <sup>[1]</sup>', typeClass: 'node-input' } },
   { id: 'w_src', type: 'custom', position: { x: 850, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Water Supply', subtitle: 'Catalyst Activation', hoverDetails: '<b>Type:</b> Qualified water charge<br/><b>Duty:</b> Supply the controlled water charge used during titanium–tartrate complex preparation. The approved batch record defines the amount and addition sequence. <sup>[1]</sup>', typeClass: 'node-input' } },
   { id: 'p101', type: 'custom', position: { x: 850, y: 150 }, parentId: 'b1', extent: 'parent', data: { title: 'Micro-Pump', subtitle: 'Water Dosing', hoverDetails: '<b>Tag:</b> P-101<br/><b>Type:</b> Metered liquid dosing pump<br/><b>Duty:</b> Transfer the qualified water charge into the complexation reactor at the approved addition point and rate.', typeClass: 'node-unitOp' } },
-  { id: 'v101c', type: 'custom', position: { x: 1050, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Dosing Vessel', subtitle: 'Titanium Source', hoverDetails: '<b>Tag:</b> V-101C<br/><b>Type:</b> Inerted micro-dosing vessel<br/><b>How:</b> Air-sensitive Ti(OiPr)&#8324; is pushed under N&#8322; pressure through XV-103 down a dip-tube that discharges below the liquid line — no splashing onto dry walls where it would gel. <sup>[5]</sup><br/><b>Spec:</b> 1.60 kg Ti(OiPr)&#8324; (5.6 mol) <sup>[1, 10]</sup>', typeClass: 'node-input' } },
+  { id: 'v101c', type: 'custom', position: { x: 1050, y: 50 }, parentId: 'b1', extent: 'parent', data: { title: 'Dosing Vessel', subtitle: 'Titanium Source', hoverDetails: '<b>Tag:</b> V-101C<br/><b>Type:</b> Inerted titanium-alkoxide dosing vessel<br/><b>Duty:</b> Meter the qualified titanium source into the complexation reactor under the approved inerting and addition procedure.', typeClass: 'node-input' } },
 
   { id: 'n2_in', type: 'custom', position: { x: 50, y: 400 }, parentId: 'b1', extent: 'parent', data: { title: 'Inert Gas', subtitle: 'Nitrogen', hoverDetails: '<b>Loop:</b> PIC-101 (inerting) <sup>[7]</sup><br/><b>Type:</b> N&#8322; purge / blanket<br/><b>How:</b> PT-101 watches headspace pressure; when it sags, XV-101 pulses N&#8322; in and PCV-101 bleeds off the displaced air, holding a slight positive pressure so air can never leak in and oxidize the catalyst.<br/><b>Spec:</b> ~1.1 bar positive', typeClass: 'node-input' } },
   { id: 'util_in', type: 'custom', position: { x: 50, y: 550 }, parentId: 'b1', extent: 'parent', data: { title: 'Utilities', subtitle: 'Heating/Cooling', hoverDetails: '<b>Loop:</b> TIC-101 (jacket) <sup>[7]</sup><br/><b>Type:</b> Reactor-jacket thermal utility<br/><b>How:</b> TT-101 (tantalum tip survives the process fluid) drives a PID that strokes TCV-101 to add hot water/LP steam or TCV-102 to add chilled water, holding the jacket so the bulk sits at setpoint.<br/><b>Spec:</b> 50–54°C setpoint', typeClass: 'node-input' } },
@@ -117,7 +117,7 @@ const initialNodes = [
   // Block 2 Nodes
   { id: 'v102a', type: 'custom', position: { x: 50, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidant Vessel', subtitle: 'Cumene Hydroperoxide', hoverDetails: '<b>Tag:</b> V-102A<br/><b>Type:</b> Qualified CHP charge vessel<br/><b>Duty:</b> Hold and transfer the hydroperoxide oxidant to the controlled dosing point. Assay, carrier, and charge are defined by the material CoA and batch record.', typeClass: 'node-input' } },
   { id: 'p102', type: 'custom', position: { x: 250, y: 50 }, parentId: 'b2', extent: 'parent', data: { title: 'Dosing Pump', subtitle: 'Controlled Flow', hoverDetails: '<b>Tag:</b> P-102<br/><b>Type:</b> High-precision metering pump<br/><b>How:</b> Trickles CHP in over ~1 hr so reaction heat is released gradually and the jacket can keep pace — a fast charge would run the exotherm away.<br/><b>Spec:</b> ~1 hr metered addition <sup>[5]</sup>', typeClass: 'node-unitOp' } },
-  { id: 'util_cool', type: 'custom', position: { x: 50, y: 250 }, parentId: 'b2', extent: 'parent', data: { title: 'Chilled Water', subtitle: 'Max Cooling', hoverDetails: '<b>Loop:</b> TIC-102 <sup>[7]</sup><br/><b>Type:</b> Jacket chilled-water utility<br/><b>How:</b> TT-102 drives TCV-102 to flood the jacket with chilled water, soaking up the large heat of reaction and pinning the batch at 30°C.<br/><b>Spec:</b> absorbs ΔH ≈ -250 to -350 kJ/mol <sup>[2]</sup>', typeClass: 'node-input' } },
+  { id: 'util_cool', type: 'custom', position: { x: 50, y: 250 }, parentId: 'b2', extent: 'parent', data: { title: 'Chilled Water', subtitle: 'Reactor Cooling Utility', hoverDetails: '<b>Loop:</b> TIC-102<br/><b>Type:</b> Jacket cooling utility<br/><b>Duty:</b> Remove reaction heat and maintain the approved oxidation temperature profile. Cooling capacity and alarm limits are equipment- and batch-specific.', typeClass: 'node-input' } },
   { id: 'r102', type: 'custom', position: { x: 250, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Oxidation STR', subtitle: 'Asymmetric Sulfoxidation', hoverDetails: '<b>Tag:</b> R-102<br/><b>Type:</b> Jacketed stirred-tank reactor<br/><b>Duty:</b> Contact the activated titanium complex with CHP to oxidize the sulfide to the S-sulfoxide. Temperature, addition rate, and endpoint are controlled by the approved batch record. <sup>[1]</sup>', typeClass: 'node-unitOp' } },
   { id: 'b2_out', type: 'custom', position: { x: 550, y: 200 }, parentId: 'b2', extent: 'parent', data: { title: 'Crude Reaction Mixture', subtitle: 'S-Sulfoxide in Process Solvent', hoverDetails: '<b>Type:</b> Unpurified reaction output<br/><b>Contains:</b> Product sulfoxide with solvent, catalyst-derived species, unreacted material, and oxidation by-products; transfers to Block 3 extraction.', typeClass: 'node-product' } },
 
@@ -158,13 +158,13 @@ const initialNodes = [
 
 const initialEdges = [
   // Block 1 Edges — each stream labelled with what it carries
-  { id: 'e-v101a-r101', source: 'v101a', target: 'r101', type: 'step', label: 'Toluene 25 L · FCV-101' },
-  { id: 'e-v101b-r101', source: 'v101b', target: 'r101', type: 'step', label: 'Pyrmetazole 6.2 kg (solid)' },
-  { id: 'e-amine-r101', source: 'amine_in', target: 'r101', type: 'step', label: 'DIPEA base 0.72 kg' },
-  { id: 'e-det-r101', source: 'det_in', target: 'r101', type: 'step', label: '(S,S)-DET 2.35 kg · XV-102' },
-  { id: 'e-w-p101', source: 'w_src', target: 'p101', type: 'step', label: 'Water 44 mL' },
+  { id: 'e-v101a-r101', source: 'v101a', target: 'r101', type: 'step', label: 'Qualified toluene charge' },
+  { id: 'e-v101b-r101', source: 'v101b', target: 'r101', type: 'step', label: 'Pyrmetazole charge' },
+  { id: 'e-amine-r101', source: 'amine_in', target: 'r101', type: 'step', label: 'DIPEA charge' },
+  { id: 'e-det-r101', source: 'det_in', target: 'r101', type: 'step', label: '(S,S)-DET charge' },
+  { id: 'e-w-p101', source: 'w_src', target: 'p101', type: 'step', label: 'Controlled water charge' },
   { id: 'e-p101-r101', source: 'p101', target: 'r101', type: 'step', label: 'Metered H₂O (sub-surface)' },
-  { id: 'e-v101c-r101', source: 'v101c', target: 'r101', type: 'step', label: 'Ti(OiPr)₄ 1.60 kg · XV-103' },
+  { id: 'e-v101c-r101', source: 'v101c', target: 'r101', type: 'step', label: 'Titanium alkoxide charge' },
   { id: 'e-n2-r101', source: 'n2_in', target: 'r101', type: 'step', label: 'N₂ purge · XV-101' },
 
   // Azeotropic distillation loop
@@ -180,11 +180,11 @@ const initialEdges = [
   { id: 'e-cool-b1', source: 'cool_phase', target: 'b1_out', type: 'step', label: 'Ti-complex in 25 L toluene' },
 
   // B2
-  { id: 'e-v102a-p102', source: 'v102a', target: 'p102', type: 'step', label: 'CHP 3.30 kg (oxidant)' },
-  { id: 'e-p102-r102', source: 'p102', target: 'r102', type: 'step', label: 'CHP metered over 1 hr' },
+  { id: 'e-v102a-p102', source: 'v102a', target: 'p102', type: 'step', label: 'Qualified CHP charge' },
+  { id: 'e-p102-r102', source: 'p102', target: 'r102', type: 'step', label: 'Controlled CHP addition' },
   { id: 'e-b1-r102', source: 'b1_out', target: 'r102', type: 'step', label: 'Ti-complex + substrate' },
   { id: 'e-util-r102', source: 'util_cool', target: 'r102', type: 'step', label: 'Chilled water · TCV-102' },
-  { id: 'e-r102-b2', source: 'r102', target: 'b2_out', type: 'step', label: 'Crude S-sulfoxide (ee >94%)' },
+  { id: 'e-r102-b2', source: 'r102', target: 'b2_out', type: 'step', label: 'Crude S-sulfoxide reaction mixture' },
 
   // B3
   { id: 'e-b2-ex101', source: 'b2_out', target: 'ex101', type: 'step', label: 'Crude in toluene' },
@@ -229,8 +229,8 @@ const routedEdges = initialEdges.map((edge) => ({
   pathOptions: { borderRadius: 18, offset: 22 },
 }));
 
-// Approximate per-batch stream / material balance (scoping figures — see note).
-// Liquid volumes converted at nominal densities: toluene 0.87, MIBK 0.80, aq. NH3 0.95 kg/L.
+// Per-batch stream / material balance panel. Blocks 3–5 remain quantity-controlled
+// by reconciled transfer records and qualified CoAs; no unvalidated values are inferred.
 const massBalance = [
   { block: 'Block 1 — Catalyst Complexation', rows: [
     { dir: 'in',    stream: 'Toluene (solvent)',           comp: 'C7H8',            amt: '25 L ≈ 21.7 kg' },
